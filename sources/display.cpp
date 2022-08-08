@@ -68,6 +68,7 @@ mywindow::mywindow() : QWidget()
     tab0->addTab(qtgui_histogram_sink_win, "Hist");
     tab1->addTab(qtgui_freq_sink_win, "Freq");
     tab1->addTab(qtgui_waterfall_sink_win, "Waterfall");
+
 }
 
 mywindow::~mywindow() {}
