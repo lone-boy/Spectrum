@@ -3,7 +3,7 @@
 
 ## illustrate
 This project is mainly to realize a simple spectrum analyzer which is still in the development stage. The project is 
-base on gnuradio module such as fft analog blocks. 
+base on libiio fftw lib. 
 
 
 ## update

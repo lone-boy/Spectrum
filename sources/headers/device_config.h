@@ -30,27 +30,18 @@ Q_OBJECT
 
 public:
     explicit device_config(QWidget *parent = nullptr);
-
     ~device_config() override;
 
 
 public slots:
-    void on_button_connect_clicked();
-    void on_button_clear_clicked();
-    void on_button_open_clicked();
+    void on_button_power_clicked();
 
 public:
-    void start();
-    void quitting();
 
 private:
-    top_block_sptr _tb;
-    QTabWidget* _tab0;
-    QWidget* _qtgui_freq_sink_win;
-    qtgui::freq_sink_f::sptr _fsnk;
-    blocks::add_ff::sptr _src;
-    blocks::throttle::sptr _thr;
-    analog::sig_source_f::sptr _src0;
+
+    bool _is_connect;
+
 
 
     Ui::device_config *ui;

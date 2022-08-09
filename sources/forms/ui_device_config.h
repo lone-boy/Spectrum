@@ -13,12 +13,10 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QTextEdit>
-#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QSplitter>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -26,123 +24,79 @@ QT_BEGIN_NAMESPACE
 class Ui_device_config
 {
 public:
-    QGridLayout *gridLayout;
-    QVBoxLayout *verticalLayout_7;
+    QSplitter *splitter_2;
+    QSplitter *splitter;
+    QWidget *widget;
+    QWidget *layoutWidget;
     QHBoxLayout *horizontalLayout;
-    QVBoxLayout *verticalLayout_4;
-    QTextEdit *textEdit;
-    QVBoxLayout *verticalLayout_3;
-    QPushButton *button_open;
-    QPushButton *button_connect;
-    QPushButton *button_clear;
-    QLineEdit *lineEdit_2;
-    QVBoxLayout *verticalLayout_5;
-    QLabel *label;
-    QVBoxLayout *verticalLayout_6;
-    QSpacerItem *horizontalSpacer_6;
-    QHBoxLayout *horizontalLayout_2;
-    QVBoxLayout *verticalLayout;
+    QPushButton *button_power;
+    QLineEdit *ip_edit;
     QSpacerItem *horizontalSpacer;
-    QVBoxLayout *verticalLayout_2;
+    QLineEdit *status;
+    QWidget *widget_2;
+    QGridLayout *gridLayout;
     QSpacerItem *horizontalSpacer_2;
 
     void setupUi(QWidget *device_config)
     {
         if (device_config->objectName().isEmpty())
             device_config->setObjectName(QString::fromUtf8("device_config"));
-        device_config->resize(1010, 595);
-        gridLayout = new QGridLayout(device_config);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        verticalLayout_7 = new QVBoxLayout();
-        verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
-        horizontalLayout = new QHBoxLayout();
+        device_config->resize(1026, 600);
+        device_config->setMinimumSize(QSize(800, 600));
+        device_config->setMaximumSize(QSize(16777215, 16777215));
+        splitter_2 = new QSplitter(device_config);
+        splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
+        splitter_2->setGeometry(QRect(10, 10, 1001, 581));
+        splitter_2->setOrientation(Qt::Horizontal);
+        splitter = new QSplitter(splitter_2);
+        splitter->setObjectName(QString::fromUtf8("splitter"));
+        splitter->setOrientation(Qt::Vertical);
+        widget = new QWidget(splitter);
+        widget->setObjectName(QString::fromUtf8("widget"));
+        widget->setMinimumSize(QSize(600, 300));
+        widget->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
+        splitter->addWidget(widget);
+        layoutWidget = new QWidget(splitter);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        horizontalLayout = new QHBoxLayout(layoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        verticalLayout_4 = new QVBoxLayout();
-        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        textEdit = new QTextEdit(device_config);
-        textEdit->setObjectName(QString::fromUtf8("textEdit"));
-        textEdit->setReadOnly(false);
+        horizontalLayout->setContentsMargins(0, 0, 0, 0);
+        button_power = new QPushButton(layoutWidget);
+        button_power->setObjectName(QString::fromUtf8("button_power"));
+        button_power->setMinimumSize(QSize(30, 30));
+        button_power->setStyleSheet(QString::fromUtf8("background-color: rgb(78, 154, 6);"));
 
-        verticalLayout_4->addWidget(textEdit);
+        horizontalLayout->addWidget(button_power);
 
+        ip_edit = new QLineEdit(layoutWidget);
+        ip_edit->setObjectName(QString::fromUtf8("ip_edit"));
+        ip_edit->setStyleSheet(QString::fromUtf8("selection-color: rgb(252, 233, 79);"
+"background-color: rgb(233, 185, 110);"));
 
-        horizontalLayout->addLayout(verticalLayout_4);
+        horizontalLayout->addWidget(ip_edit);
 
-        verticalLayout_3 = new QVBoxLayout();
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        button_open = new QPushButton(device_config);
-        button_open->setObjectName(QString::fromUtf8("button_open"));
-
-        verticalLayout_3->addWidget(button_open);
-
-        button_connect = new QPushButton(device_config);
-        button_connect->setObjectName(QString::fromUtf8("button_connect"));
-
-        verticalLayout_3->addWidget(button_connect);
-
-        button_clear = new QPushButton(device_config);
-        button_clear->setObjectName(QString::fromUtf8("button_clear"));
-
-        verticalLayout_3->addWidget(button_clear);
-
-        lineEdit_2 = new QLineEdit(device_config);
-        lineEdit_2->setObjectName(QString::fromUtf8("lineEdit_2"));
-
-        verticalLayout_3->addWidget(lineEdit_2);
-
-
-        horizontalLayout->addLayout(verticalLayout_3);
-
-        verticalLayout_5 = new QVBoxLayout();
-        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
-        label = new QLabel(device_config);
-        label->setObjectName(QString::fromUtf8("label"));
-
-        verticalLayout_5->addWidget(label);
-
-
-        horizontalLayout->addLayout(verticalLayout_5);
-
-        verticalLayout_6 = new QVBoxLayout();
-        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
-        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        verticalLayout_6->addItem(horizontalSpacer_6);
-
-
-        horizontalLayout->addLayout(verticalLayout_6);
-
-
-        verticalLayout_7->addLayout(horizontalLayout);
-
-        horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        verticalLayout = new QVBoxLayout();
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        verticalLayout->addItem(horizontalSpacer);
+        horizontalLayout->addItem(horizontalSpacer);
 
+        status = new QLineEdit(layoutWidget);
+        status->setObjectName(QString::fromUtf8("status"));
+        status->setStyleSheet(QString::fromUtf8("background-color: rgb(239, 41, 41);"));
+        status->setAlignment(Qt::AlignCenter);
 
-        horizontalLayout_2->addLayout(verticalLayout);
+        horizontalLayout->addWidget(status);
 
-        verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        splitter->addWidget(layoutWidget);
+        splitter_2->addWidget(splitter);
+        widget_2 = new QWidget(splitter_2);
+        widget_2->setObjectName(QString::fromUtf8("widget_2"));
+        gridLayout = new QGridLayout(widget_2);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        horizontalSpacer_2 = new QSpacerItem(342, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        verticalLayout_2->addItem(horizontalSpacer_2);
+        gridLayout->addItem(horizontalSpacer_2, 0, 0, 1, 1);
 
-
-        horizontalLayout_2->addLayout(verticalLayout_2);
-
-
-        verticalLayout_7->addLayout(horizontalLayout_2);
-
-        verticalLayout_7->setStretch(0, 1);
-        verticalLayout_7->setStretch(1, 3);
-
-        gridLayout->addLayout(verticalLayout_7, 0, 0, 1, 1);
-
+        splitter_2->addWidget(widget_2);
 
         retranslateUi(device_config);
 
@@ -151,12 +105,15 @@ public:
 
     void retranslateUi(QWidget *device_config)
     {
-        device_config->setWindowTitle(QApplication::translate("device_config", "device_config", nullptr));
-        button_open->setText(QApplication::translate("device_config", "open", nullptr));
-        button_connect->setText(QApplication::translate("device_config", "connect", nullptr));
-        button_clear->setText(QApplication::translate("device_config", "clear", nullptr));
-        lineEdit_2->setPlaceholderText(QApplication::translate("device_config", "ip:192.168.2.1", nullptr));
-        label->setText(QApplication::translate("device_config", "\347\256\200\346\230\223\351\242\221\350\260\261\344\273\252", nullptr));
+        device_config->setWindowTitle(QApplication::translate("device_config", "Spectrum", nullptr));
+        button_power->setText(QApplication::translate("device_config", "Power", nullptr));
+#ifndef QT_NO_STATUSTIP
+        ip_edit->setStatusTip(QString());
+#endif // QT_NO_STATUSTIP
+        ip_edit->setText(QString());
+        ip_edit->setPlaceholderText(QApplication::translate("device_config", "ip:192.168.2.1", nullptr));
+        status->setText(QString());
+        status->setPlaceholderText(QApplication::translate("device_config", "OFF", nullptr));
     } // retranslateUi
 
 };

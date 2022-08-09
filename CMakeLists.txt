@@ -16,6 +16,7 @@ include_directories(
 link_directories(
         /usr/local/lib
         /usr/lib/x86_64-linux-gnu
+        /usr/include
 )
 
 find_package(Qt5 COMPONENTS
@@ -25,18 +26,19 @@ find_package(Qt5 COMPONENTS
         REQUIRED)
 
 add_executable(Spectrum main.cpp
-        sources/headers/display.h sources/display.cpp sources/device_config.cpp
+        sources/device_config.cpp
         sources/headers/device_config.h sources/forms/device_config.ui)
 target_link_libraries(Spectrum
         Qt5::Core
         Qt5::Gui
         Qt5::Widgets
-        gnuradio-qtgui
-        gnuradio-fft
-        gnuradio-blocks
-        gnuradio-analog
-        gnuradio-runtime
-        gnuradio-audio
+#        gnuradio-qtgui
+#        gnuradio-fft
+#        gnuradio-blocks
+#        gnuradio-analog
+#        gnuradio-runtime
+#        gnuradio-audio
+        libiio.so
         boost_system
         )
 
