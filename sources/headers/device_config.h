@@ -8,43 +8,40 @@
 #include <QWidget>
 #include <QtWidgets/QVBoxLayout>
 #include "qtabwidget.h"
-#include <gnuradio/analog/noise_source.h>
-#include <gnuradio/analog/sig_source.h>
-#include <gnuradio/blocks/add_blk.h>
-#include <gnuradio/blocks/throttle.h>
-#include <gnuradio/fft/window.h>
-#include <gnuradio/qtgui/freq_sink_f.h>
-#include <gnuradio/qtgui/histogram_sink_f.h>
-#include <gnuradio/qtgui/time_sink_f.h>
-#include <gnuradio/qtgui/waterfall_sink_f.h>
-#include <gnuradio/top_block.h>
+#include "qt/thread_iio.hpp"
+#include "QSharedPointer"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class device_config; }
 QT_END_NAMESPACE
 
-using namespace gr;
-
 class device_config : public QWidget {
 Q_OBJECT
-
 public:
     explicit device_config(QWidget *parent = nullptr);
     ~device_config() override;
 
+signals:
+    void send_message(QString message);
+    void send_discon_message();
 
 public slots:
     void on_button_power_clicked();
+    void on_button_disconnect_clicked();
 
-public:
+private slots:
+    void recv_message(QString message);
+    void recv_message_console(QString message);
 
+    /* draw */
+    void recv_fft_data(const QVector<double>& fft_data,int fft_n);
 private:
-
-    bool _is_connect;
-
-
-
+    QSharedPointer<iio_thread> _work_thread;
     Ui::device_config *ui;
+    virtual void closeEvent(QCloseEvent *event) override;
+
+    /* draw */
+    void setup_plot();
 };
 
 
