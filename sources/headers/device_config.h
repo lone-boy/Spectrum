@@ -23,6 +23,7 @@ public:
 
 signals:
     void send_message(QString message);
+    void send_config(QString config);
     void send_discon_message();
 
 public slots:
@@ -33,11 +34,15 @@ private slots:
     void recv_message(QString message);
     void recv_message_console(QString message);
 
+    /* value change */
+    void recv_seletnumber_change(void);
+
     /* draw */
-    void recv_fft_data(const QVector<double>& fft_data,int fft_n);
+    void recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz);
 private:
     QSharedPointer<iio_thread> _work_thread;
     Ui::device_config *ui;
+
     virtual void closeEvent(QCloseEvent *event) override;
 
     /* draw */

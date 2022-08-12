@@ -28,12 +28,13 @@ public:
 signals:
     void send_info(QString info);
     void send_info_console(QString info);
-    void send_fft_data(const QVector<double> fft_data,int fft_n);
+    void send_fft_data(const QVector<double> fft_data, int fft_n, long long lo_hz);
 
 private slots:
     void recv_info_ip(QString info);
     void recv_discon_button();
     void time_send_fft();
+    void recv_config_value(QString config);
 
 protected:
     virtual void run();
@@ -43,7 +44,7 @@ private:
     bool _is_run_rx,_is_button_on;
     bool _try_connect;
     std::string _ip;
-
+    stream_cfg_s _rx_cfg;
     QTimer *_tim;
 
     QSharedPointer<iio> _iio_device;
@@ -52,6 +53,10 @@ private:
 
     QVector<double> _send_data;
     QMutex *_fft_data_mutex;
+
+    void run_default_config();
+    void run_config_device();
+    void run_get_stream();
 };
 
 #endif //SPECTRUM_THREAD_IIO_HPP

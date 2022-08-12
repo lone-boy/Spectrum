@@ -39,7 +39,7 @@ public:
     virtual bool connect_device(const std::string &ip) = 0;
     virtual bool set_ad9361_stream_dev(iodev d, stream_cfg_s cfg, int chid)  = 0;
     virtual void enable_iio_channel()  = 0;
-    virtual void release_iio() = 0;
+    virtual bool malloc_iio_buffer() = 0;
     virtual void get_iio_data(fftw_complex *in, int fft_n) = 0;
 };
 
@@ -59,8 +59,15 @@ public:
         if(_ctx) iio_context_destroy(_ctx);
 
     }
-    void release_iio() override{
-        if(_rx_buf) iio_buffer_destroy(_rx_buf);
+    bool malloc_iio_buffer() override{
+        LOG("* Create iio buffer *")
+        _rx_buf = iio_device_create_buffer(_rx,1024*10, false);
+        if(!_rx_buf)
+        {
+            LOG("* Could not create Rx buffer *");
+            return false;
+        }
+        return true;
     }
     bool connect_device(const std::string &ip) override{
         LOG("* Find context %s *" ,ip.c_str())
@@ -81,13 +88,7 @@ public:
         assert(get_ad9361_stream_ch(_ctx, RX, _rx, 0, &_rx0_i) && "RX chan i not found");
         assert(get_ad9361_stream_ch(_ctx, RX, _rx, 1, &_rx0_q) && "RX chan q not found");
         enable_iio_channel();
-        LOG("* Create iio buffer *")
-        _rx_buf = iio_device_create_buffer(_rx,1024*10, false);
-        if(!_rx_buf)
-        {
-            LOG("* Could not create Rx buffer *");
-            return false;
-        }
+
         return true;
     }
     void enable_iio_channel() override{

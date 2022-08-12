@@ -32,7 +32,9 @@ add_executable(Spectrum main.cpp
         sources/headers/device_config.h sources/forms/device_config.ui inc/iio/iio_device_scan.hpp
         src/iio_device_scan.cpp inc/qt/thread_iio.hpp src/thread_iio.cpp
         inc/qt/qcustomplot.h src/qcustomplot.cpp
-        inc/fft/fftw3.h)
+        inc/fft/fftw3.h sources/selectnumber.cpp sources/headers/selectnumber.h
+        inc/iio/ad9361.h)
+
 target_link_libraries(Spectrum
         Qt5::Core
         Qt5::Gui
@@ -40,6 +42,7 @@ target_link_libraries(Spectrum
         Qt5::PrintSupport
         libiio.so
         libfftw3.a
+        libad9361.so
         boost_system
         )
 

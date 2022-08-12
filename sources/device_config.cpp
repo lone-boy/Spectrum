@@ -4,6 +4,7 @@
 
 // You may need to build the project (run Qt uic code generator) to get "ui_device_config.h" resolved
 
+#include <QVector>
 #include "device_config.h"
 #include "forms/ui_device_config.h"
 #include "qwidget.h"
@@ -14,21 +15,22 @@
 device_config::device_config(QWidget *parent) :
         QWidget(parent)
         , ui(new Ui::device_config)
-        , _work_thread() {
+        , _work_thread()
+        {
     ui->setupUi(this);
 
+
     this->setup_plot();
+    ui->number_select_M->setRange(0,6000);
+    ui->number_select_M->setCurValue(100);
+    ui->number_select_K->setRange(0,999);
+    ui->number_select_K->setCurValue(0);
+    ui->number_select_H->setRange(0,999);
+    ui->number_select_H->setCurValue(0);
 
     ui->console->document()->setMaximumBlockCount(100);
     ui->console->append("Antsdr:console");
     ui->console->moveCursor(QTextCursor::End,QTextCursor::MoveAnchor);
-
-    QValidator *validator_m = new QIntValidator(70,6000,this);
-    ui->le_lo_M->setValidator(validator_m);
-    QValidator *validator_k = new QIntValidator(0,999,this);
-    ui->le_lo_K->setValidator(validator_k);
-    QValidator *validator_h = new QIntValidator(0,999,this);
-    ui->le_lo_H->setValidator(validator_h);
 
     _work_thread.reset(new(iio_thread));
     QObject::connect(this, SIGNAL(send_message(QString)),
@@ -39,8 +41,17 @@ device_config::device_config(QWidget *parent) :
                      this,SLOT(recv_message(QString)));
     QObject::connect(this, SIGNAL(send_discon_message()),
                      _work_thread.get(), SLOT(recv_discon_button()));
-    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(QVector<double>, int)),
-                     this,SLOT(recv_fft_data(const QVector<double>, int)));
+    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(QVector<double>, int,long long)),
+                     this,SLOT(recv_fft_data(QVector<double>, int, long long)));
+    QObject::connect(ui->number_select_M,SIGNAL(send_value_changed(void)),
+                     this,SLOT(recv_seletnumber_change(void)));
+    QObject::connect(ui->number_select_K,SIGNAL(send_value_changed(void)),
+                     this,SLOT(recv_seletnumber_change(void)));
+    QObject::connect(ui->number_select_H,SIGNAL(send_value_changed(void)),
+                     this,SLOT(recv_seletnumber_change(void)));
+    QObject::connect(this, SIGNAL(send_config(QString)),
+                     _work_thread.get(),SLOT(recv_config_value(QString)));
+
 
     _work_thread->start();
 
@@ -103,18 +114,32 @@ void device_config::setup_plot() {
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
-void device_config::recv_fft_data(const QVector<double>& fft_data, int fft_n) {
+void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz) {
+
+    double center_M = (double )lo_hz / 1e6;
     QVector<double> x;
     x.resize(fft_n);
     for(int i = 0;i<fft_n;i++)
     {
-        x[i] = 99.5+(double)i / 1024;
+        x[i] = (center_M - 1.0 / 2)+(double)i / 1024;
     }
     ui->custom_plot->graph(0)->setData(x,fft_data);
     ui->custom_plot->replot();
     ui->custom_plot->xAxis->rescale();
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
+
+void device_config::recv_seletnumber_change(void) {
+    QString device_config_para;
+
+    device_config_para.append(ui->number_select_M->getValueStr());
+    device_config_para.append(ui->number_select_K->getValueStr());
+    device_config_para.append(ui->number_select_H->getValueStr());
+    emit send_config(device_config_para);
+}
+
+
+
 
 
 
