@@ -54,8 +54,10 @@ bool iio_impl::get_ad9361_stream_ch(struct iio_context *ctx, enum iodev d, struc
 
 bool iio_impl::get_phy_chan(struct iio_context *ctx, enum iodev d, int chid, struct iio_channel **chn) {
     switch (d) {
-        case RX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("voltage", chid), false); return *chn != NULL;
-        case TX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("voltage", chid), true);  return *chn != NULL;
+        case RX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("voltage", chid), false);
+            return *chn !=nullptr;
+        case TX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("voltage", chid), true);
+            return *chn != NULL;
         default: assert(0); return false;
     }
 }
@@ -85,8 +87,6 @@ bool iio_impl::cfg_ad9361_stream_ch(struct iio_context *ctx, struct stream_cfg *
     wr_ch_lli(chn, "frequency", cfg->lo_hz);
     return true;
 }
-
-
 
 iio::sptr iio::make_iio()
 {

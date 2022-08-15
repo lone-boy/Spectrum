@@ -21,7 +21,7 @@ iio_thread::iio_thread()
     _tmp = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
     _send_data.resize(FFT_N);
     _tim = new QTimer();
-    _tim->setInterval(80);
+    _tim->setInterval(50);
     connect(_tim,SIGNAL(timeout()),this,SLOT(time_send_fft()));
     _tim->start();
 }
@@ -32,7 +32,7 @@ void iio_thread::close_thread() {
 
 void iio_thread::run() {
     _rx_cfg.lo_hz = MHZ(100);
-    _rx_cfg.fs_hz = MHZ(2.5);
+    _rx_cfg.fs_hz = MHZ(1);
     _rx_cfg.bw_hz = MHZ(3);
     _rx_cfg.rfport = "B_BALANCED";
     while(!_is_stop){
@@ -101,13 +101,13 @@ void iio_thread::run_get_stream() {
     {
         double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
         double A = 2 * M / FFT_N;
-        _send_data[j] = fabs(20*log10(A / 1e3));
+        _send_data[j] = (20*log10(fabs(A) / 1e3));
     }
     for(int i = 0,j = _send_data.size() / 2;i<_send_data.size() / 2;i++,j++)
     {
         double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
         double A = 2 * M / FFT_N;
-        _send_data[j] = fabs(20*log10(A / 1e3));
+        _send_data[j] = (20*log10(fabs(A) / 1e3));
     }
     _fft_data_mutex->unlock();
     if(_is_button_on){
@@ -170,7 +170,8 @@ void iio_thread::time_send_fft() {
 
 void iio_thread::recv_config_value(QString config) {
     _rx_cfg.lo_hz = config.toLongLong();
-    run_config_device();
+    if(_is_run_rx)
+        run_config_device();
 }
 
 

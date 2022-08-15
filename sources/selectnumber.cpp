@@ -281,7 +281,6 @@ void selectnumber::homing()
 //动画结束
 void selectnumber::slotChoseFinshed()
 {
-//    emit currentValueChanged(m_currentValue); //发送当前数值改变信号
 
     emit send_value_changed();
 }

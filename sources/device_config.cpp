@@ -112,12 +112,20 @@ void device_config::setup_plot() {
 
 
     ui->custom_plot->addGraph();
-    QPen pen;
-    pen.setColor(Qt::blue);
-    ui->custom_plot->graph()->setPen(pen);
+    ui->custom_plot->graph()->setPen(QPen(Qt::blue));
     ui->custom_plot->addGraph();
     ui->custom_plot->graph(1)->setPen(QPen(Qt::red));
     ui->custom_plot->addGraph();
+    QPen draw_pen;
+    draw_pen.setColor(Qt::green);
+    draw_pen.setWidth(4);
+    ui->custom_plot->graph(2)->setPen(draw_pen);
+    ui->custom_plot->graph(2)->setLineStyle(QCPGraph::lsNone);
+    ui->custom_plot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot,2));
+    /* set backgroud in drawing */
+//    QLinearGradient plot_gradient;
+//    plot_gradient.setColorAt(0,Qt::black);
+//    ui->custom_plot->setBackground(plot_gradient);
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
@@ -130,7 +138,18 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         x[i] = (center_M - (double)2 / 2)+(double)i*2 / fft_n;
 
     }
+    auto max_value = std::max_element(std::begin(fft_data),std::end(fft_data));
+    auto position_max = std::distance(std::begin(fft_data),max_value);
+    QVector<double>x_plot,y_plot;
+    x_plot << x[(int)position_max];
+    y_plot << *max_value;
+
+    QVector<double> max_x(fft_n,*max_value);
+
     ui->custom_plot->graph(0)->setData(x,fft_data);
+    ui->custom_plot->graph(1)->setData(x,max_x);
+    ui->custom_plot->graph(2)->setData(x_plot,y_plot);
+
     ui->custom_plot->replot();
     ui->custom_plot->xAxis->rescale();
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
@@ -142,7 +161,11 @@ void device_config::recv_seletnumber_change(void) {
     device_config_para.append(ui->number_select_M->getValueStr());
     device_config_para.append(ui->number_select_K->getValueStr());
     device_config_para.append(ui->number_select_H->getValueStr());
-    emit send_config(device_config_para);
+    if(device_config_para.toLongLong() < 70e6 or device_config_para.toLongLong() > 6e9)
+        ui->console->setText("lo must be < 70Mhz or > 6Ghz");
+
+    else
+        emit send_config(device_config_para);
 }
 
 

@@ -14,7 +14,7 @@
 #include "QTimer"
 #include "QMutex"
 
-#define FFT_N 1024
+#define FFT_N 512
 
 
 class iio_thread:public QThread
