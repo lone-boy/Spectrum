@@ -10,6 +10,7 @@
 #include "qwidget.h"
 #include "qdebug.h"
 #include "qvalidator.h"
+#include "fft/fftw3.h"
 
 
 device_config::device_config(QWidget *parent) :
@@ -109,19 +110,25 @@ void device_config::setup_plot() {
 
     ui->custom_plot->yAxis->setRange(-10,60,Qt::AlignCenter);
 
+
     ui->custom_plot->addGraph();
-    ui->custom_plot->graph()->setPen(QPen(Qt::blue));
+    QPen pen;
+    pen.setColor(Qt::blue);
+    ui->custom_plot->graph()->setPen(pen);
+    ui->custom_plot->addGraph();
+    ui->custom_plot->graph(1)->setPen(QPen(Qt::red));
+    ui->custom_plot->addGraph();
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
 void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz) {
-
     double center_M = (double )lo_hz / 1e6;
     QVector<double> x;
     x.resize(fft_n);
-    for(int i = 0;i<fft_n;i++)
+    for(int i = 0;i<x.size();i++)
     {
-        x[i] = (center_M - 1.0 / 2)+(double)i / 1024;
+        x[i] = (center_M - (double)2 / 2)+(double)i*2 / fft_n;
+
     }
     ui->custom_plot->graph(0)->setData(x,fft_data);
     ui->custom_plot->replot();

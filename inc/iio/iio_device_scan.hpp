@@ -111,6 +111,7 @@ public:
             in[index][1] = ((int16_t*)_p_data)[1];
             index++;
         }
+
     }
 private:
     iio_context *_ctx;

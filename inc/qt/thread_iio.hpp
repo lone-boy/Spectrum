@@ -50,6 +50,7 @@ private:
     QSharedPointer<iio> _iio_device;
     fftw_complex *_in;
     fftw_complex *_out;
+    fftw_complex *_tmp;
 
     QVector<double> _send_data;
     QMutex *_fft_data_mutex;
