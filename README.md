@@ -1,7 +1,3 @@
----
-title: "Spectrum"
----
-
 # Spectrum
 "spectrum base project"
 
