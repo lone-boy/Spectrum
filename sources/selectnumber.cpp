@@ -9,12 +9,12 @@
 selectnumber::selectnumber(QWidget *parent)
 : QWidget(parent)
 {
-    _m_maxRange = 999;
+    _m_maxRange = 9;
     _m_minRange = 0;
     m_currentValue = 0;
     isDragging=0;
     m_deviation=0;
-    m_numSize=3;
+    m_numSize=1;
     isMiddle=false;
     m_prefix="";
     m_suffix="";
@@ -44,13 +44,13 @@ void selectnumber::setRange(int min, int max)
         m_currentValue = max;
     }
     //计算字符尺寸
-    m_numSize = 3;
-    int temp = _m_maxRange;
-    while(temp > 0)
-    {
-        temp /= 10;
-        m_numSize++;
-    }
+    m_numSize = 6;
+//    int temp = _m_maxRange;
+//    while(temp > 0)
+//    {
+//        temp /= 5;
+//        m_numSize++;
+//    }
     update(); //重绘此组件，需要进行重绘时,要使用update
 
 }
@@ -63,12 +63,12 @@ int selectnumber::readValue()
 QString selectnumber::getValueStr()
 {
     QString strValue;
-    if(m_currentValue < 10){
-        strValue="00";
-    }
-    else if(m_currentValue < 100 && m_currentValue >=10){
-        strValue="0";
-    }
+//    if(m_currentValue < 10){
+//        strValue="00";
+//    }
+//    else if(m_currentValue < 100 && m_currentValue >=10){
+//        strValue="0";
+//    }
     strValue+=QString::number(m_currentValue);
     return strValue;
 }
@@ -135,17 +135,14 @@ void selectnumber::mouseMoveEvent(QMouseEvent *event)
 void selectnumber::wheelEvent(QWheelEvent *event) {
     if(event->delta() > 0){
         /*  */
-        if(m_currentValue == _m_minRange)
-            return;
-
-        m_currentValue -= (int)(0.1*event->delta());
-
+        m_currentValue -= 1;
+        if(m_currentValue == _m_minRange - 1)
+            m_currentValue = _m_maxRange;
     }
     else{
-        if(m_currentValue == _m_maxRange)
-            return;
-
-        m_currentValue += (int)(0.1*event->delta()*-1);
+        m_currentValue += 1;
+        if(m_currentValue == _m_maxRange + 1)
+            m_currentValue = _m_minRange;
     }
     m_currentValue = m_currentValue > _m_maxRange? _m_maxRange:m_currentValue;
     m_currentValue = m_currentValue < _m_minRange? _m_minRange:m_currentValue;
@@ -192,22 +189,22 @@ void selectnumber::paintEvent(QPaintEvent *m_painter)
     //中间数字
     paintNum(painter,m_currentValue,m_deviation,isMiddle=1); //将选中数字画到中间
 
-    //两侧数字1
-    if(m_currentValue != _m_minRange) //选中的数字不是最小，不是最大，那么就有两侧数字，然后画出两侧数字
-        paintNum(painter,m_currentValue-1,m_deviation-Height*2/10,isMiddle=0);
-    if(m_currentValue != _m_maxRange)
-        paintNum(painter,m_currentValue+1,m_deviation+Height*2/10,isMiddle=0);
-
-    //两侧数字2,超出则不显示
-    if(m_deviation >= 0 && m_currentValue-2 >= _m_minRange)
-        paintNum(painter,m_currentValue-2,m_deviation-Height*4/10,isMiddle=0);
-    if(m_deviation <= 0 && m_currentValue+2 <= _m_maxRange)
-        paintNum(painter,m_currentValue+2,m_deviation+Height*4/10,isMiddle=0);
+//    //两侧数字1
+//    if(m_currentValue != _m_minRange) //选中的数字不是最小，不是最大，那么就有两侧数字，然后画出两侧数字
+//        paintNum(painter,m_currentValue-1,m_deviation-Height*2/10,isMiddle=0);
+//    if(m_currentValue != _m_maxRange)
+//        paintNum(painter,m_currentValue+1,m_deviation+Height*2/10,isMiddle=0);
+//
+//    //两侧数字2,超出则不显示
+//    if(m_deviation >= 0 && m_currentValue-2 >= _m_minRange)
+//        paintNum(painter,m_currentValue-2,m_deviation-Height*4/10,isMiddle=0);
+//    if(m_deviation <= 0 && m_currentValue+2 <= _m_maxRange)
+//        paintNum(painter,m_currentValue+2,m_deviation+Height*4/10,isMiddle=0);
 
     //画边框，中间数字两侧的边框
-    painter.setPen(QPen(QColor(5,39,175,120),4));
-    painter.drawLine(0,Height/8*3,Width,Height/8*3);
-    painter.drawLine(0,Height/8*5,Width,Height/8*5);
+//    painter.setPen(QPen(QColor(5,39,175,120),4));
+//    painter.drawLine(0,Height/8*3,Width,Height/8*3);
+//    painter.drawLine(0,Height/8*5,Width,Height/8*5);
 
     QWidget::paintEvent(m_painter);
 }
@@ -217,7 +214,7 @@ void selectnumber::paintNum(QPainter &painter, int num, int deviation, bool isMi
     int Width = this->width()-1;
     int Height = this->height()-1;
 
-    int size = (Height - qAbs(deviation))/m_numSize; //qAbs 返回输入参数对应类型的绝对值。
+    int size = (Height - qAbs(deviation))/2; //qAbs 返回输入参数对应类型的绝对值。
     int transparency = 255-510*qAbs(deviation)/Height; //设置透明度
     int height = Height/2-3*qAbs(deviation)/5;
     int y = Height/2+deviation-height/2;
@@ -233,19 +230,20 @@ void selectnumber::paintNum(QPainter &painter, int num, int deviation, bool isMi
         painter.setPen(QColor(0,0,0,transparency)); //设置画笔，黑色
     }
     QString str_date;
-    if(num<=9)
-    {
-        str_date=QString("00")+QString::number(num);
-    }
-    else if(num <= 99)
-    {
-        str_date=QString("0")+QString::number(num);
-
-    }
-    else
-    {
-        str_date=QString::number(num);
-    }
+    str_date=QString::number(num);
+//    if(num<=9)
+//    {
+//        str_date=QString("00")+QString::number(num);
+//    }
+//    else if(num <= 99)
+//    {
+//        str_date=QString("0")+QString::number(num);
+//
+//    }
+//    else
+//    {
+//        str_date=QString::number(num);
+//    }
     str_date=m_prefix+str_date+m_suffix;
     painter.drawText(QRectF(0,y,Width,height), //画文本，参数：QRectF参数：位置xy，长宽大小；对齐方式，中间对齐；内容
                      Qt::AlignCenter,

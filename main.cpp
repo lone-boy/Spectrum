@@ -5,5 +5,6 @@ int main(int argc, char *argv[]) {
     QApplication app(argc,argv);
     auto *device_window = new device_config();
     device_window->show();
-    return app.exec();
+    app.exec();
+    return 0;
 }

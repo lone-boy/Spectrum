@@ -32,7 +32,7 @@ void iio_thread::close_thread() {
 
 void iio_thread::run() {
     _rx_cfg.lo_hz = MHZ(100);
-    _rx_cfg.fs_hz = MHZ(1);
+    _rx_cfg.fs_hz = MHZ(2.5);
     _rx_cfg.bw_hz = MHZ(3);
     _rx_cfg.rfport = "B_BALANCED";
     while(!_is_stop){
@@ -140,8 +140,6 @@ void iio_thread::recv_info_ip(QString info) {
             emit send_info_console("Is running please disconnect first");
         }
     }
-
-
 }
 
 iio_thread::~iio_thread() {
@@ -170,6 +168,12 @@ void iio_thread::time_send_fft() {
 
 void iio_thread::recv_config_value(QString config) {
     _rx_cfg.lo_hz = config.toLongLong();
+    if(_is_run_rx)
+        run_config_device();
+}
+
+void iio_thread::recv_config_bd(QString bd_width) {
+    _rx_cfg.bw_hz = MHZ(bd_width.toInt());
     if(_is_run_rx)
         run_config_device();
 }

@@ -14,7 +14,7 @@
 #include "QTimer"
 #include "QMutex"
 
-#define FFT_N 512
+#define FFT_N 1024
 
 
 class iio_thread:public QThread
@@ -35,6 +35,7 @@ private slots:
     void recv_discon_button();
     void time_send_fft();
     void recv_config_value(QString config);
+    void recv_config_bd(QString bd_width);
 
 protected:
     virtual void run();
