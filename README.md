@@ -1,5 +1,5 @@
 ---
-typora-root-url: ./
+title: "Spectrum"
 ---
 
 # Spectrum
