@@ -27,7 +27,6 @@ public:
 
 signals:
     void send_info(QString info);
-    void send_info_console(QString info);
     void send_fft_data(const QVector<double> fft_data, int fft_n, long long lo_hz);
 
 private slots:

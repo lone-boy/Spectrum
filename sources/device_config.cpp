@@ -23,7 +23,7 @@ device_config::device_config(QWidget *parent) :
     _label->setLayer("overlay");
     _label->setPen(QPen(Qt::white));
     _label->setColor(Qt::white);
-    _label->setVisible(true);
+    _label->setVisible(false);
 
     _label1 = new QCPItemText(ui->custom_plot);
     _label1->setLayer("overlay");
@@ -33,8 +33,8 @@ device_config::device_config(QWidget *parent) :
 
     _label2 = new QCPItemText(ui->custom_plot);
     _label2->setLayer("overlay");
-    _label2->setPen(QColor(239, 41, 41));
-    _label2->setColor(QColor(239, 41, 41));
+    _label2->setPen(QColor(252, 175, 62));
+    _label2->setColor(QColor(252, 175, 62));
     _label2->setVisible(false);
 
     _label3 = new QCPItemText(ui->custom_plot);
@@ -54,15 +54,10 @@ device_config::device_config(QWidget *parent) :
     ui->number_select_bw->setRange(1,40);
     ui->number_select_bw->setCurValue(3);
 
-    ui->console->document()->setMaximumBlockCount(100);
-    ui->console->append("Antsdr:console");
-    ui->console->moveCursor(QTextCursor::End,QTextCursor::MoveAnchor);
     _work_thread.reset(new(iio_thread));
 
     QObject::connect(this, SIGNAL(send_message(QString)),
                      _work_thread.get(),SLOT(recv_info_ip(QString)));
-    QObject::connect(_work_thread.get(), SIGNAL(send_info_console(QString)),
-                     this,SLOT(recv_message_console(QString)));
     QObject::connect(_work_thread.get(),SIGNAL(send_info(QString)),
                      this,SLOT(recv_message(QString)));
     QObject::connect(this, SIGNAL(send_discon_message()),
@@ -110,6 +105,7 @@ device_config::~device_config() {
 
 void device_config::on_button_power_clicked() {
     QString ip_addr = ui->ip_edit->text();
+    _label->setVisible(true);
     emit send_message(ip_addr);
 
 }
@@ -121,9 +117,9 @@ void device_config::on_button_disconnect_clicked() {
 
 void device_config::on_checkBox_1_clicked() {
     if(ui->checkBox_1->checkState() == Qt::Unchecked
+       && ui->checkBox_2->checkState() == Qt::Unchecked
        && ui->checkBox_3->checkState() == Qt::Unchecked
-       && ui->checkBox_4->checkState() == Qt::Unchecked
-       && ui->checkBox_5->checkState() == Qt::Unchecked)
+       && ui->checkBox_4->checkState() == Qt::Unchecked)
     {
         _dial_action = NO;
     }
@@ -140,16 +136,16 @@ void device_config::on_checkBox_1_clicked() {
     }
 }
 
-void device_config::on_checkBox_3_clicked() {
+void device_config::on_checkBox_2_clicked() {
     if(ui->checkBox_1->checkState() == Qt::Unchecked
+       && ui->checkBox_2->checkState() == Qt::Unchecked
        && ui->checkBox_3->checkState() == Qt::Unchecked
-       && ui->checkBox_4->checkState() == Qt::Unchecked
-       && ui->checkBox_5->checkState() == Qt::Unchecked)
+       && ui->checkBox_4->checkState() == Qt::Unchecked)
     {
         _dial_action = NO;
     }
     else{
-        if(ui->checkBox_3->checkState() == Qt::Checked){
+        if(ui->checkBox_2->checkState() == Qt::Checked){
             _dial_action = Box_2;
             _new_cursor = true;
             _label2->setVisible(true);
@@ -161,16 +157,16 @@ void device_config::on_checkBox_3_clicked() {
     }
 }
 
-void device_config::on_checkBox_4_clicked() {
+void device_config::on_checkBox_3_clicked() {
     if(ui->checkBox_1->checkState() == Qt::Unchecked
+       && ui->checkBox_2->checkState() == Qt::Unchecked
        && ui->checkBox_3->checkState() == Qt::Unchecked
-       && ui->checkBox_4->checkState() == Qt::Unchecked
-       && ui->checkBox_5->checkState() == Qt::Unchecked)
+       && ui->checkBox_4->checkState() == Qt::Unchecked)
     {
         _dial_action = NO;
     }
     else{
-        if(ui->checkBox_4->checkState() == Qt::Checked){
+        if(ui->checkBox_3->checkState() == Qt::Checked){
             _dial_action = Box_3;
             _new_cursor = true;
             _label3->setVisible(true);
@@ -182,16 +178,16 @@ void device_config::on_checkBox_4_clicked() {
     }
 }
 
-void device_config::on_checkBox_5_clicked() {
+void device_config::on_checkBox_4_clicked() {
     if(ui->checkBox_1->checkState() == Qt::Unchecked
+       && ui->checkBox_2->checkState() == Qt::Unchecked
        && ui->checkBox_3->checkState() == Qt::Unchecked
-       && ui->checkBox_4->checkState() == Qt::Unchecked
-       && ui->checkBox_5->checkState() == Qt::Unchecked)
+       && ui->checkBox_4->checkState() == Qt::Unchecked)
     {
         _dial_action = NO;
     }
     else{
-        if(ui->checkBox_5->checkState() == Qt::Checked){
+        if(ui->checkBox_4->checkState() == Qt::Checked){
             _dial_action = Box_4;
             _new_cursor = true;
             _label4->setVisible(true);
@@ -203,12 +199,7 @@ void device_config::on_checkBox_5_clicked() {
     }
 }
 
-void device_config::recv_message_console(QString message) {
-    ui->console->append(message);
-    ui->console->moveCursor(QTextCursor::End,QTextCursor::MoveAnchor);
-}
-
-void device_config::recv_message(QString message) {
+void device_config::recv_message(const QString& message) {
     if(not message.compare("connect"))
     {
         ui->status->setStyleSheet(QString::fromUtf8("background-color: rgb(78, 154, 6);"));
@@ -346,7 +337,7 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         ui->custom_plot->graph(3)->data().data()->clear();
         _label1->setVisible(false);
     }
-    if(ui->checkBox_3->checkState() == Qt::Checked){
+    if(ui->checkBox_2->checkState() == Qt::Checked){
         QVector<double>x2_plot,y2_plot;
         x2_plot << x[(int)_index_2];
         y2_plot << fft_data[(int)_index_2];
@@ -357,7 +348,7 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         ui->custom_plot->graph(4)->data().data()->clear();
         _label2->setVisible(false);
     }
-    if(ui->checkBox_4->checkState() == Qt::Checked){
+    if(ui->checkBox_3->checkState() == Qt::Checked){
         QVector<double>x3_plot,y3_plot;
         x3_plot << x[(int)_index_3];
         y3_plot << fft_data[(int)_index_3];
@@ -368,7 +359,7 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         ui->custom_plot->graph(5)->data().data()->clear();
         _label3->setVisible(false);
     }
-    if(ui->checkBox_5->checkState() == Qt::Checked) {
+    if(ui->checkBox_4->checkState() == Qt::Checked) {
         QVector<double>x4_plot,y4_plot;
         x4_plot << x[(int)_index_4];
         y4_plot << fft_data[(int)_index_4];
@@ -399,7 +390,6 @@ void device_config::recv_seletnumber_change(void) {
     device_config_para.append(ui->number_select_1->getValueStr());
 
     if(device_config_para.toLongLong() < 70e6 or device_config_para.toLongLong() > 6e9){
-        ui->console->setText("lo must be < 70Mhz or > 6Ghz");
         ui->number_select_10->setCurValue(0);
         ui->number_select_9->setCurValue(0);
         ui->number_select_8->setCurValue(7);
@@ -411,21 +401,21 @@ void device_config::recv_seletnumber_change(void) {
         ui->number_select_2->setCurValue(0);
         ui->number_select_1->setCurValue(0);
         emit send_config_lo(QString("70000000"));
-        ui->LO_label->setText("70 MHz");
-        ui->LO_label->setText(QString("70") + QString("M"));
+        ui->lineEdit_Fq->setText("70 000 000");
     }
     else{
-        if(device_config_para.toLongLong() < 1e9){
-            double lo_M = device_config_para.toLongLong() / 1e6;
-            ui->LO_label->setText(QString::number(lo_M,'f',3) + QString("M"));
-        }
-        else{
-            double lo_G= device_config_para.toLongLong() / 1e9;
-            ui->LO_label->setText(QString::number(lo_G,'f',3) + QString("G"));
-        }
+        ui->lineEdit_Fq->setText(device_config_para);
+//        if(device_config_para.toLongLong() < 1e9){
+//            double lo_M = device_config_para.toLongLong() / 1e6;
+//            ui->lineEdit_Fq->setText(device_config_para);
+//        }
+//        else{
+//            double lo_G= device_config_para.toLongLong() / 1e9;
+//
+//        }
         emit send_config_lo(device_config_para);
     }
-    ui->BandWidth_label->setText(ui->number_select_bw->getValueStr());
+//    ui->BandWidth_label->setText(ui->number_select_bw->getValueStr());
     emit send_config_band_width(ui->number_select_bw->getValueStr());
 }
 

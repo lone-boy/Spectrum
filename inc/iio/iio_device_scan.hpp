@@ -13,6 +13,7 @@
 #include "cmath"
 #include "fft/fftw3.h"
 #include "QVector"
+#include "ad9361.h"
 
 #define LOG(format,args...) { \
                qDebug(format,##args); \
@@ -87,6 +88,7 @@ public:
         LOG("* Initializing AD9361 IIO streaming channels")
         assert(get_ad9361_stream_ch(_ctx, RX, _rx, 0, &_rx0_i) && "RX chan i not found");
         assert(get_ad9361_stream_ch(_ctx, RX, _rx, 1, &_rx0_q) && "RX chan q not found");
+//        assert(ad9361_set_bb_rate_custom_filter_auto(_rx,500e3));
         enable_iio_channel();
 
         return true;

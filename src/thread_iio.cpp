@@ -33,7 +33,7 @@ void iio_thread::close_thread() {
 void iio_thread::run() {
     _rx_cfg.lo_hz = MHZ(100);
     _rx_cfg.fs_hz = MHZ(2.5);
-    _rx_cfg.bw_hz = MHZ(3);
+    _rx_cfg.bw_hz = MHZ(2.5);
     _rx_cfg.rfport = "B_BALANCED";
     while(!_is_stop){
         if(_try_connect)
@@ -51,41 +51,36 @@ void iio_thread::run_default_config() {
     bool is_connect;
     is_connect = _iio_device->connect_device(_ip);
     if(is_connect){
-        emit send_info_console("Connect succeed");
         emit send_info("connect");
-        emit send_info_console("Running config device");
         if(_iio_device->set_ad9361_stream_dev(RX, _rx_cfg, 0)){
-            emit send_info_console("Config device done");
-            emit send_info_console("Enable iio channel");
-            emit send_info_console("malloc iio buffer");
             if(_iio_device->malloc_iio_buffer())
-                emit send_info_console("malloc iio buffer succed");
+                qDebug() << "malloc iio buffer succeed";
             else
-                emit send_info_console("malloc iio buffer failed");
+                qDebug() << "malloc iio buffer failed";
             _is_run_rx = true;
         }
         else{
             _is_run_rx = false;
-            emit send_info_console("Config device failed");
+            qDebug() << "Config device failed";
         }
     }
     else{
         _is_run_rx = false;
-        emit send_info_console("Connect failed");
-        emit send_info("unconnect");
+        qDebug() << ("Connect failed");
+        qDebug() << ("unconnect");
     }
     _try_connect = false;
 }
 void iio_thread::run_config_device() {
-    emit send_info_console("Config device");
+    qDebug() << ("Config device");
     if(_iio_device->set_ad9361_stream_dev(RX, _rx_cfg, 0)){
-        emit send_info_console("Config device done");
-        emit send_info_console("Enable iio channel");
+        qDebug() << ("Config device done");
+        qDebug() << ("Enable iio channel");
         _is_run_rx = true;
     }
     else{
         _is_run_rx = false;
-        emit send_info_console("Config device failed");
+        qDebug() << ("Config device failed");
     }
 }
 void iio_thread::run_get_stream() {
@@ -101,13 +96,13 @@ void iio_thread::run_get_stream() {
     {
         double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
         double A = 2 * M / FFT_N;
-        _send_data[j] = (20*log10(fabs(A) / 1e3));
+        _send_data[j] = (20*log10(A / 1e3));
     }
     for(int i = 0,j = _send_data.size() / 2;i<_send_data.size() / 2;i++,j++)
     {
         double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
         double A = 2 * M / FFT_N;
-        _send_data[j] = (20*log10(fabs(A) / 1e3));
+        _send_data[j] = (20*log10(A / 1e3));
     }
     _fft_data_mutex->unlock();
     if(_is_button_on){
@@ -125,19 +120,17 @@ void iio_thread::recv_info_ip(QString info) {
             if(info.isEmpty())
             {/*  */
                 _ip = "ip:192.168.2.1";
-                emit send_info_console("use default ip:192.168.2.1");
+                qDebug() << ("use default ip:192.168.2.1");
             }
             else{
                 QString info_send("use ");
                 info_send.append(info);
-                emit send_info_console(info_send);
                 _ip = info.toStdString();
             }
             if(!_is_run_rx)
                 _try_connect = true;
         }
         else{
-            emit send_info_console("Is running please disconnect first");
         }
     }
 }
@@ -150,11 +143,9 @@ void iio_thread::recv_discon_button() {
     if(_is_run_rx){
         _is_run_rx = false;
         _is_button_on = true;
-        emit send_info_console("disconnect device");
         emit send_info("unconnect");
     }
     else{
-        emit send_info_console("No device connect");
     }
 }
 
@@ -173,9 +164,12 @@ void iio_thread::recv_config_value(QString config) {
 }
 
 void iio_thread::recv_config_bd(QString bd_width) {
-    _rx_cfg.bw_hz = MHZ(bd_width.toInt());
+//    _rx_cfg.bw_hz = MHZ(bd_width.toInt());
     if(_is_run_rx)
-        run_config_device();
+    {
+
+    }
+//        run_config_device();
 }
 
 

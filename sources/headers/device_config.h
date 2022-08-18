@@ -40,15 +40,14 @@ public slots:
     void on_button_power_clicked();
     void on_button_disconnect_clicked();
     void on_checkBox_1_clicked();
-    void on_checkBox_5_clicked();
+    void on_checkBox_2_clicked();
     void on_checkBox_3_clicked();
     void on_checkBox_4_clicked();
     /* dial change */
     void dial_change(bool);
 
 private slots:
-    void recv_message(QString message);
-    void recv_message_console(QString message);
+    void recv_message(const QString& message);
 
     /* value change */
     void recv_seletnumber_change(void);
