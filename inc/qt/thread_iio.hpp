@@ -14,7 +14,7 @@
 #include "QTimer"
 #include "QMutex"
 
-#define FFT_N 1024
+#define FFT_N 512
 
 
 class iio_thread:public QThread
@@ -36,6 +36,9 @@ private slots:
     void recv_config_value(QString config);
     void recv_config_bd(QString bd_width);
 
+    void recv_rx_gain_mode(QString rx_mode);
+    void recv_rx_gain_value(QString gain_value);
+
 protected:
     virtual void run();
 
@@ -45,14 +48,16 @@ private:
     bool _try_connect;
     std::string _ip;
     stream_cfg_s _rx_cfg;
+    long long _rx_cfg_lo_hz;
     QTimer *_tim;
 
     QSharedPointer<iio> _iio_device;
     fftw_complex *_in;
     fftw_complex *_out;
-    fftw_complex *_tmp;
+    std::vector<fftw_complex> _data_in;
+    float _scan_width;
 
-    QVector<double> _send_data;
+    QVector<double> _send_data,_send_all_data;
     QMutex *_fft_data_mutex;
 
     void run_default_config();

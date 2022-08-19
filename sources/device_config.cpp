@@ -52,8 +52,9 @@ device_config::device_config(QWidget *parent) :
     this->setup_plot();
     ui->number_select_9->setCurValue(1);
     ui->number_select_bw->setRange(1,40);
-    ui->number_select_bw->setCurValue(3);
-
+    ui->number_select_bw->setCurValue(1);
+    ui->number_select_gain->setRange(-3,71);
+    ui->number_select_gain->setCurValue(70);
     _work_thread.reset(new(iio_thread));
 
     QObject::connect(this, SIGNAL(send_message(QString)),
@@ -86,12 +87,18 @@ device_config::device_config(QWidget *parent) :
                      this,SLOT(recv_seletnumber_change(void)));
     QObject::connect(ui->number_select_bw,SIGNAL(send_value_changed(void)),
                      this,SLOT(recv_seletnumber_change(void)));
+    QObject::connect(ui->number_select_gain, SIGNAL(send_value_changed()),
+                     this,SLOT(recv_selet_gain_change()));
     QObject::connect(this, SIGNAL(send_config_lo(QString)),
                      _work_thread.get(),SLOT(recv_config_value(QString)));
     QObject::connect(this,SIGNAL(send_config_band_width(QString)),
                      _work_thread.get(),SLOT(recv_config_bd(QString)));
     QObject::connect(this->ui->curson_switch, SIGNAL(dial_is_change(bool)),
                      this,SLOT(dial_change(bool)));
+    QObject::connect(this, SIGNAL(send_rx_gain_mode(QString)),
+                     _work_thread.get(), SLOT(recv_rx_gain_mode(QString)));
+    QObject::connect(this, SIGNAL(send_rx_gain_value(QString)),
+                     _work_thread.get(),SLOT(recv_rx_gain_value(QString)));
 
     _work_thread->start();
 
@@ -405,17 +412,8 @@ void device_config::recv_seletnumber_change(void) {
     }
     else{
         ui->lineEdit_Fq->setText(device_config_para);
-//        if(device_config_para.toLongLong() < 1e9){
-//            double lo_M = device_config_para.toLongLong() / 1e6;
-//            ui->lineEdit_Fq->setText(device_config_para);
-//        }
-//        else{
-//            double lo_G= device_config_para.toLongLong() / 1e9;
-//
-//        }
         emit send_config_lo(device_config_para);
     }
-//    ui->BandWidth_label->setText(ui->number_select_bw->getValueStr());
     emit send_config_band_width(ui->number_select_bw->getValueStr());
 }
 
@@ -457,6 +455,26 @@ void device_config::dial_change(bool is_add) {
         }
     }
 
+}
+
+void device_config::on_radioButton_RG_fast_clicked() {
+    emit(send_rx_gain_mode("fast_attack"));
+}
+
+void device_config::on_radioButton_RG_hybrid_clicked() {
+    emit(send_rx_gain_mode("hybrid"));
+}
+
+void device_config::on_radioButton_RG_manual_clicked() {
+    emit(send_rx_gain_mode("manual"));
+}
+
+void device_config::on_radioButton_RG_slow_clicked() {
+    emit(send_rx_gain_mode("slow_attack"));
+}
+
+void device_config::recv_selet_gain_change(void) {
+    emit(send_rx_gain_value(ui->number_select_gain->getValueStr()));
 }
 
 

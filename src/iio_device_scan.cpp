@@ -42,6 +42,7 @@ bool iio_impl::get_ad9361_stream_dev(struct iio_context *ctx, enum iodev d, stru
         default:
             assert(0);return false;
     }
+
 }
 
 bool iio_impl::get_ad9361_stream_ch(struct iio_context *ctx, enum iodev d, struct iio_device *dev, int chid,
@@ -57,7 +58,7 @@ bool iio_impl::get_phy_chan(struct iio_context *ctx, enum iodev d, int chid, str
         case RX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("voltage", chid), false);
             return *chn !=nullptr;
         case TX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("voltage", chid), true);
-            return *chn != NULL;
+            return *chn != nullptr;
         default: assert(0); return false;
     }
 }
@@ -67,7 +68,7 @@ bool iio_impl::get_lo_chan(struct iio_context *ctx, enum iodev d, struct iio_cha
         // LO chan is always output, i.e. true
         case RX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("altvoltage", 0), true); return *chn != NULL;
         case TX: *chn = iio_device_find_channel(get_ad9361_phy(_ctx), get_ch_name("altvoltage", 1), true); return *chn != NULL;
-        default: assert(0); return false;
+        default: assert(0);
     }
 }
 
@@ -75,16 +76,32 @@ bool iio_impl::cfg_ad9361_stream_ch(struct iio_context *ctx, struct stream_cfg *
     struct iio_channel *chn = nullptr;
 
     // Configure phy and lo channels
-    LOG("* Acquiring AD9361 phy channel %d", chid);
     if (!get_phy_chan(_ctx, type, chid, &chn)) {	return false; }
     wr_ch_str(chn, "rf_port_select",     cfg->rfport);
     wr_ch_lli(chn, "rf_bandwidth",       cfg->bw_hz);
     wr_ch_lli(chn, "sampling_frequency", cfg->fs_hz);
 
     // Configure LO channel
-    LOG("* Acquiring AD9361 %s lo channel", type == TX ? "TX" : "RX");
     if (!get_lo_chan(_ctx, type, &chn)) { return false; }
     wr_ch_lli(chn, "frequency", cfg->lo_hz);
+    return true;
+}
+
+bool iio_impl::set_rx_gain_mode(enum iodev type, const char *mode, int chid) {
+    struct iio_channel *chn = nullptr;
+    LOG("* Set rx gain mode *");
+    if(!get_phy_chan(_ctx,type,chid,&chn)) { return false;}
+    wr_ch_str(chn,"gain_control_mode",mode);
+    LOG("* rx gain mode %s *",mode);
+    return true;
+}
+
+bool iio_impl::set_rx_gain_manual_value(enum iodev type, long long int gain_value, int chid) {
+    struct iio_channel *chn = nullptr;
+
+    LOG("* Set rx gain value *");
+    if(!get_phy_chan(_ctx,type,chid,&chn)) { return false;}
+    wr_ch_lli(chn,"hardwaregain",gain_value);
     return true;
 }
 

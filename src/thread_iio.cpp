@@ -18,10 +18,11 @@ iio_thread::iio_thread()
     _fft_data_mutex = new(QMutex);
     _in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
     _out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
-    _tmp = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
+    _scan_width = 1; /* 1MHz */
     _send_data.resize(FFT_N);
     _tim = new QTimer();
-    _tim->setInterval(50);
+    _tim->setInterval(80);
+    _rx_cfg_lo_hz = MHZ(100);
     connect(_tim,SIGNAL(timeout()),this,SLOT(time_send_fft()));
     _tim->start();
 }
@@ -32,17 +33,15 @@ void iio_thread::close_thread() {
 
 void iio_thread::run() {
     _rx_cfg.lo_hz = MHZ(100);
-    _rx_cfg.fs_hz = MHZ(2.5);
-    _rx_cfg.bw_hz = MHZ(2.5);
+    _rx_cfg.fs_hz = MHZ(4);
+    _rx_cfg.bw_hz = MHZ(1);
     _rx_cfg.rfport = "B_BALANCED";
     while(!_is_stop){
         if(_try_connect)
         {
             run_default_config();
         }
-        if(_is_run_rx){
-            run_get_stream();
-        }
+
         usleep(10);
     }
 }
@@ -72,39 +71,47 @@ void iio_thread::run_default_config() {
     _try_connect = false;
 }
 void iio_thread::run_config_device() {
-    qDebug() << ("Config device");
     if(_iio_device->set_ad9361_stream_dev(RX, _rx_cfg, 0)){
-        qDebug() << ("Config device done");
-        qDebug() << ("Enable iio channel");
         _is_run_rx = true;
     }
     else{
         _is_run_rx = false;
-        qDebug() << ("Config device failed");
     }
 }
 void iio_thread::run_get_stream() {
     fftw_plan p;
-    _fft_data_mutex->lock();
-    _iio_device->get_iio_data(_in, FFT_N);
-
-    p = fftw_plan_dft_1d(FFT_N,_in,_out,FFTW_FORWARD,FFTW_ESTIMATE);
-    fftw_execute(p);
-
-    _send_data.resize(FFT_N);
-    for(int i = _send_data.size() / 2,j = 0;i<_send_data.size();i++,j++)
-    {
-        double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
-        double A = 2 * M / FFT_N;
-        _send_data[j] = (20*log10(A / 1e3));
+    /* scan band width step is 1MHz */
+    if(_scan_width > 1 ){
+        _rx_cfg.lo_hz = _rx_cfg_lo_hz - (long long)(MHZ(0.5)*(_scan_width-1));
     }
-    for(int i = 0,j = _send_data.size() / 2;i<_send_data.size() / 2;i++,j++)
-    {
-        double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
-        double A = 2 * M / FFT_N;
-        _send_data[j] = (20*log10(A / 1e3));
+    else{
+        _rx_cfg.lo_hz = _rx_cfg_lo_hz;
     }
-    _fft_data_mutex->unlock();
+
+    for(int index=0;index<(int)_scan_width;index++)
+    {
+        if(_scan_width > 1){
+            _rx_cfg.lo_hz += MHZ(1);
+            run_config_device();
+        }
+        _iio_device->get_iio_data(_in,FFT_N);
+        p = fftw_plan_dft_1d(FFT_N,_in,_out,FFTW_FORWARD,FFTW_ESTIMATE);
+        fftw_execute(p);
+        _send_data.resize(FFT_N);
+        for(int i = _send_data.size() / 2,j = 0;i<_send_data.size();i++,j++)
+        {
+            double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
+            double A = 2 * M / FFT_N;
+            _send_data[j] = (20*log10(A / 1e3));
+        }
+        for(int i = 0,j = _send_data.size() / 2;i<_send_data.size() / 2;i++,j++)
+        {
+            double M = sqrt((_out[i][0])*(_out[i][0]) + (_out[i][1])*(_out[i][1]));
+            double A = 2 * M / FFT_N;
+            _send_data[j] = (20*log10(A / 1e3));
+        }
+        _send_all_data.append(_send_data);
+    }
     if(_is_button_on){
         _is_button_on = false;
     }
@@ -118,7 +125,7 @@ void iio_thread::recv_info_ip(QString info) {
     {
         if(!_is_run_rx){
             if(info.isEmpty())
-            {/*  */
+            {
                 _ip = "ip:192.168.2.1";
                 qDebug() << ("use default ip:192.168.2.1");
             }
@@ -151,25 +158,39 @@ void iio_thread::recv_discon_button() {
 
 void iio_thread::time_send_fft() {
     if(_is_run_rx){
-        _fft_data_mutex->lock();
-        emit send_fft_data(_send_data, FFT_N, _rx_cfg.lo_hz);
-        _fft_data_mutex->unlock();
+        run_get_stream();
+        emit send_fft_data(_send_all_data, _send_all_data.size(), _rx_cfg_lo_hz);
+        _send_all_data.clear();
     }
 }
 
 void iio_thread::recv_config_value(QString config) {
-    _rx_cfg.lo_hz = config.toLongLong();
-    if(_is_run_rx)
+    _rx_cfg_lo_hz = config.toLongLong();
+    if(_scan_width <= 1){
+        _rx_cfg.lo_hz = _rx_cfg_lo_hz;
         run_config_device();
+    }
 }
 
 void iio_thread::recv_config_bd(QString bd_width) {
-//    _rx_cfg.bw_hz = MHZ(bd_width.toInt());
+    _scan_width = bd_width.toFloat();
+    if(_is_run_rx)
+        run_config_device();
+
+}
+
+void iio_thread::recv_rx_gain_mode(QString rx_mode) {
     if(_is_run_rx)
     {
-
+        _iio_device->set_ad9361_rx_gain_mode(RX,rx_mode.toStdString().c_str(),0);
     }
-//        run_config_device();
+}
+
+void iio_thread::recv_rx_gain_value(QString gain_value) {
+    if(_is_run_rx){
+        _iio_device->set_ad9361_rx_gain_value(RX,gain_value.toLongLong(),0);
+    }
+
 }
 
 

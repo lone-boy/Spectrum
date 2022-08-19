@@ -154,7 +154,7 @@ public:
         splitter_2->addWidget(splitter);
         widget_2 = new QWidget(splitter_2);
         widget_2->setObjectName(QString::fromUtf8("widget_2"));
-        widget_2->setMinimumSize(QSize(400, 0));
+        widget_2->setMinimumSize(QSize(500, 0));
         widget_2->setStyleSheet(QString::fromUtf8("background-color: rgb(193, 125, 17);"));
         gridLayout_4 = new QGridLayout(widget_2);
         gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
@@ -228,6 +228,7 @@ public:
 
         radioButton_RG_slow = new QRadioButton(groupBox);
         radioButton_RG_slow->setObjectName(QString::fromUtf8("radioButton_RG_slow"));
+        radioButton_RG_slow->setChecked(true);
 
         horizontalLayout_14->addWidget(radioButton_RG_slow);
 
@@ -349,7 +350,7 @@ public:
 
         number_select_gain = new selectnumber(layoutWidget1);
         number_select_gain->setObjectName(QString::fromUtf8("number_select_gain"));
-        number_select_gain->setMinimumSize(QSize(20, 30));
+        number_select_gain->setMinimumSize(QSize(50, 30));
         number_select_gain->setMaximumSize(QSize(100, 100));
         number_select_gain->setStyleSheet(QString::fromUtf8("background-color: rgb(46, 52, 54);"));
 

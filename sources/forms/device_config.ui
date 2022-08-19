@@ -128,7 +128,7 @@ background-color: rgb(233, 185, 110);</string>
      <widget class="QWidget" name="widget_2" native="true">
       <property name="minimumSize">
        <size>
-        <width>400</width>
+        <width>500</width>
         <height>0</height>
        </size>
       </property>
@@ -259,6 +259,9 @@ color: rgb(78, 154, 6);</string>
                  <widget class="QRadioButton" name="radioButton_RG_slow">
                   <property name="text">
                    <string>slow_attack</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -505,7 +508,7 @@ color: rgb(78, 154, 6);</string>
               <widget class="selectnumber" name="number_select_gain" native="true">
                <property name="minimumSize">
                 <size>
-                 <width>20</width>
+                 <width>50</width>
                  <height>30</height>
                 </size>
                </property>
