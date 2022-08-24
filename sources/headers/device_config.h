@@ -37,6 +37,7 @@ signals:
     void send_config_band_width(QString bd_width);
     void send_rx_gain_mode(QString rx_mode);
     void send_rx_gain_value(QString gain_value);
+    void send_RWB_change(bool);
 
 public slots:
     void on_button_power_clicked();
@@ -47,6 +48,7 @@ public slots:
     void on_checkBox_4_clicked();
     /* dial change */
     void dial_change(bool);
+    void dial_RWB_change(bool);
     /* radio button event */
     void on_radioButton_RG_fast_clicked();
     void on_radioButton_RG_hybrid_clicked();
@@ -54,15 +56,16 @@ public slots:
     void on_radioButton_RG_slow_clicked();
 
 
+
 private slots:
     void recv_message(const QString& message);
-
+    void recv_RWB(QString);
     /* value change */
     void recv_seletnumber_change(void);
     void recv_selet_gain_change(void);
 
     /* draw */
-    void recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz);
+    void recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz, long long bd_width);
 
 
 private:

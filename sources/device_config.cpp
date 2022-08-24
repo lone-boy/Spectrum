@@ -19,6 +19,7 @@ device_config::device_config(QWidget *parent) :
         , _work_thread(){
     _dial_action =  NO;
     ui->setupUi(this);
+
     _label = new QCPItemText(ui->custom_plot);
     _label->setLayer("overlay");
     _label->setPen(QPen(Qt::white));
@@ -51,7 +52,7 @@ device_config::device_config(QWidget *parent) :
 
     this->setup_plot();
     ui->number_select_9->setCurValue(1);
-    ui->number_select_bw->setRange(1,40);
+    ui->number_select_bw->setRange(1,1000);
     ui->number_select_bw->setCurValue(1);
     ui->number_select_gain->setRange(-3,71);
     ui->number_select_gain->setCurValue(70);
@@ -63,8 +64,8 @@ device_config::device_config(QWidget *parent) :
                      this,SLOT(recv_message(QString)));
     QObject::connect(this, SIGNAL(send_discon_message()),
                      _work_thread.get(), SLOT(recv_discon_button()));
-    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(QVector<double>, int,long long)),
-                     this,SLOT(recv_fft_data(QVector<double>, int, long long)));
+    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(QVector<double>, int,long long,long long)),
+                     this,SLOT(recv_fft_data(QVector<double>, int, long long, long long)));
     QObject::connect(ui->number_select_10,SIGNAL(send_value_changed(void)),
                      this,SLOT(recv_seletnumber_change(void)));
     QObject::connect(ui->number_select_9,SIGNAL(send_value_changed(void)),
@@ -99,6 +100,12 @@ device_config::device_config(QWidget *parent) :
                      _work_thread.get(), SLOT(recv_rx_gain_mode(QString)));
     QObject::connect(this, SIGNAL(send_rx_gain_value(QString)),
                      _work_thread.get(),SLOT(recv_rx_gain_value(QString)));
+    QObject::connect(this->ui->curson_rwb, SIGNAL(dial_is_change(bool)),
+                     this, SLOT(dial_RWB_change(bool)));
+    QObject::connect(this, SIGNAL(send_RWB_change(bool)),
+                     _work_thread.get(), SLOT(recv_RWB(bool)));
+    QObject::connect(_work_thread.get(), SIGNAL(send_RWB(QString)),
+                     this,SLOT(recv_RWB(QString)));
 
     _work_thread->start();
 
@@ -289,15 +296,21 @@ void device_config::setup_plot() {
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
-void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz) {
+void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz, long long bd_width) {
     double center_M = (double )lo_hz / 1e6;
-    int bd_width = ui->number_select_bw->readValue();
+    double scan_bw_width = 0;
+    if(ui->number_select_bw->readValue() == 1)
+    {
+        scan_bw_width = (double)bd_width / (2 * 1000000);
+    }
+    else{
+        scan_bw_width = (double)bd_width / 1000000;
+    }
     QVector<double> x;
     x.resize(fft_n);
     for(int i = 0;i<x.size();i++)
     {
-        x[i] = (center_M - (double)bd_width / 2)+(double)i*bd_width / fft_n;
-
+        x[i] = (center_M - (double)scan_bw_width / 2)+(double)i*scan_bw_width / fft_n;
     }
     auto max_value = std::max_element(std::begin(fft_data),std::end(fft_data));
     auto position_max = std::distance(std::begin(fft_data),max_value);
@@ -454,7 +467,6 @@ void device_config::dial_change(bool is_add) {
                 break;
         }
     }
-
 }
 
 void device_config::on_radioButton_RG_fast_clicked() {
@@ -475,6 +487,14 @@ void device_config::on_radioButton_RG_slow_clicked() {
 
 void device_config::recv_selet_gain_change(void) {
     emit(send_rx_gain_value(ui->number_select_gain->getValueStr()));
+}
+
+void device_config::dial_RWB_change(bool is_add) {
+    emit(send_RWB_change(is_add));
+}
+
+void device_config::recv_RWB(QString rwb) {
+    ui->label_rwb->setText(rwb);
 }
 
 

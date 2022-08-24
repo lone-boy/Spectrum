@@ -14,15 +14,15 @@ dial_change::~dial_change() {
 }
 void dial_change::wheelEvent(QWheelEvent *event) {
     if(event->delta() > 0){
-        this->setValue(this->value()-1);
-        if(this->value() == this->minimum())
-            this->setValue(this->maximum());
-        emit dial_is_change(false);
-    }
-    else{
-        this->setValue(this->value()+1);
-        if(this->value() == this->maximum())
+        this->setValue(this->value()+10);
+        if(this->value() >= this->maximum())
             this->setValue(this->minimum());
         emit dial_is_change(true);
+    }
+    else{
+        this->setValue(this->value()-10);
+        if(this->value() <= this->minimum())
+            this->setValue(this->maximum());
+        emit dial_is_change(false);
     }
 }

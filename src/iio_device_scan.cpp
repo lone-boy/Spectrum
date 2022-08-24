@@ -3,12 +3,154 @@
 //
 #include "iio/iio_device_scan.hpp"
 
-
 iio::~iio()
 {
     /* NOP */
 }
+void iio_impl::get_control_mode_available(iodev d, int chid, char control_mode_available[]) {
+    size_t read_length;
+    struct iio_channel *chn = nullptr;
+    if (!get_phy_chan(_ctx, d, chid, &chn)) {	return ; }
+    read_length = iio_channel_attr_read(chn,"gain_control_mode_available",
+                                        control_mode_available,50);
+    if(read_length <= 0)
+    {
+        LOG("* get gain control mode available failed *")
+    }
+}
 
+/***
+ * set rx_gain mode
+ * ***/
+bool iio_impl::set_ad9361_rx_gain_mode(iodev d, const char *mode, int chid) {
+    struct iio_channel *chn = nullptr;
+    LOG("* Set rx gain mode *")
+    if(!get_phy_chan(_ctx,d,chid,&chn)) { return false;}
+    wr_ch_str(chn,"gain_control_mode",mode);
+    LOG("* rx gain mode %s *",mode);
+    return true;
+}
+
+void iio_impl::get_rx_gain_value(int chid, char rx_gain_available[]) {
+    size_t read_length;
+    struct iio_channel *chn = nullptr;
+    LOG("* Get rx gain value *")
+    if(!get_phy_chan(_ctx,RX,chid,&chn)) {return;}
+    read_length = iio_channel_attr_read(chn,"hardwaregain_available",rx_gain_available,50);
+    if(read_length <= 0)
+    {
+        LOG("* get get_rx_gain_value failed *")
+    }
+}
+
+bool iio_impl::set_ad9361_rx_gain_value(iodev d, long long value, int chid){
+    struct iio_channel *chn = nullptr;
+    LOG("* Set rx gain value *");
+    if(!get_phy_chan(_ctx,d,chid,&chn)) { return false;}
+    wr_ch_lli(chn,"hardwaregain",value);
+    return true;
+}
+
+void iio_impl::get_sampling_frequency_available(iodev d, int chid, char frequency_available[]) {
+    size_t read_length;
+    struct iio_channel *chn = nullptr;
+    LOG("* Get frequency available *")
+    if(!get_phy_chan(_ctx,d,chid,&chn)) {return;}
+    read_length = iio_channel_attr_read(chn,"sampling_frequency_available",frequency_available,50);
+    if(read_length <= 0)
+    {
+        LOG("* get sampling_frequency_available failed *")
+    }
+}
+
+void iio_impl::get_bandwidth_available(iodev d, int chid, char *bandwidth) {
+    size_t read_length;
+    struct iio_channel *chn = nullptr;
+    LOG("* Get bandwidth available *")
+    if(!get_phy_chan(_ctx,d,chid,&chn)) {return;}
+    read_length = iio_channel_attr_read(chn,"rf_bandwidth_available",bandwidth,50);
+    if(read_length <= 0)
+    {
+        LOG("* get rf_bandwidth_available failed *")
+    }
+}
+
+bool iio_impl::malloc_iio_buffer(uint32_t samples_count) {
+    LOG("* Create iio buffer *")
+
+    if(_rx_buf){
+        LOG("* destroy iio buffer *")
+        iio_buffer_destroy(_rx_buf);
+    }
+    if(_rx){
+        iio_device_set_kernel_buffers_count(_rx,1);
+        _rx_buf = iio_device_create_buffer(_rx,samples_count, false);
+    }
+    if(!_rx_buf)
+    {
+        LOG("* Could not create Rx buffer *");
+        return false;
+    }
+    return true;
+}
+
+bool iio_impl::connect_device(const std::string &ip) {
+    LOG("* Find context %s *" ,ip.c_str())
+    _ctx = iio_create_context_from_uri(ip.c_str());
+    if(_ctx == nullptr)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool iio_impl::set_ad9361_stream_dev(iodev d, stream_cfg_s cfg, int chid) {
+    if(_rx0_i) iio_channel_disable(_rx0_i);
+    if(_rx0_q) iio_channel_disable(_rx0_q);
+
+    if(not get_ad9361_stream_dev(_ctx,d,&_rx)){
+        return false;
+    }
+
+    assert(get_ad9361_stream_dev(_ctx,d,&_rx) && "No _rx found");
+    assert(cfg_ad9361_stream_ch(_ctx, &cfg, d, chid) && "RX port 0 not found");
+    assert(get_ad9361_stream_ch(_ctx, RX, _rx, 0, &_rx0_i) && "RX chan i not found");
+    assert(get_ad9361_stream_ch(_ctx, RX, _rx, 1, &_rx0_q) && "RX chan q not found");
+
+    enable_iio_channel();
+    return true;
+}
+
+void iio_impl::enable_iio_channel() {
+    iio_channel_enable(_rx0_i);
+    iio_channel_enable(_rx0_q);
+}
+
+void iio_impl::get_iio_data(fftw_complex (*in), int fft_n, uint32_t samp_cnt) {
+    ssize_t nbytes_rx;
+    ptrdiff_t p_inc;
+    void *_p_end;
+    nbytes_rx = iio_buffer_refill(_rx_buf);
+    if(nbytes_rx < 0) LOG(" *refill buff %d* ",(int)nbytes_rx)
+    p_inc = iio_buffer_step(_rx_buf);
+    _p_end = iio_buffer_end(_rx_buf);
+
+    int number = 0;
+    int index = 0;
+    int start = 0;
+    if(samp_cnt / fft_n == 2)
+        start = fft_n / 2;
+    for(_p_data = iio_buffer_first(_rx_buf,_rx0_i);_p_data < _p_end;_p_data = (uint8_t *)_p_data + p_inc)
+    {
+        if(number >= start && index <  fft_n)
+        {
+            in[index][0] = ((int16_t*)_p_data)[0];
+            in[index][1] = ((int16_t*)_p_data)[1];
+            index++;
+        }
+        number++;
+    }
+}
 
 void iio_impl::errchk(int v, const char *what) {
     if (v < 0) {
@@ -87,28 +229,19 @@ bool iio_impl::cfg_ad9361_stream_ch(struct iio_context *ctx, struct stream_cfg *
     return true;
 }
 
-bool iio_impl::set_rx_gain_mode(enum iodev type, const char *mode, int chid) {
+void iio_impl::set_ad9361_lo_hz(enum iodev type, int chid, long long int lo_hz) {
     struct iio_channel *chn = nullptr;
-    LOG("* Set rx gain mode *");
-    if(!get_phy_chan(_ctx,type,chid,&chn)) { return false;}
-    wr_ch_str(chn,"gain_control_mode",mode);
-    LOG("* rx gain mode %s *",mode);
-    return true;
+    if (!get_lo_chan(_ctx, type, &chn)) { return; }
+    wr_ch_lli(chn, "frequency", lo_hz);
 }
 
-bool iio_impl::set_rx_gain_manual_value(enum iodev type, long long int gain_value, int chid) {
-    struct iio_channel *chn = nullptr;
-
-    LOG("* Set rx gain value *");
-    if(!get_phy_chan(_ctx,type,chid,&chn)) { return false;}
-    wr_ch_lli(chn,"hardwaregain",gain_value);
-    return true;
-}
 
 iio::sptr iio::make_iio()
 {
     return sptr(new iio_impl());
 }
+
+
 
 
 

@@ -14,8 +14,7 @@
 #include "QTimer"
 #include "QMutex"
 
-#define FFT_N 512
-
+#define FFT_BASE 128
 
 class iio_thread:public QThread
 {
@@ -27,7 +26,8 @@ public:
 
 signals:
     void send_info(QString info);
-    void send_fft_data(const QVector<double> fft_data, int fft_n, long long lo_hz);
+    void send_fft_data(const QVector<double> fft_data, int fft_n, long long lo_hz, long long bw_hz);
+    void send_RWB(QString RWB);
 
 private slots:
     void recv_info_ip(QString info);
@@ -39,10 +39,14 @@ private slots:
     void recv_rx_gain_mode(QString rx_mode);
     void recv_rx_gain_value(QString gain_value);
 
+    void recv_RWB(bool);
+
 protected:
     virtual void run();
 
 private:
+    int FFT_N;
+    int _fft_n_coefficient;
     volatile bool _is_stop;
     bool _is_run_rx,_is_button_on;
     bool _try_connect;
@@ -50,6 +54,16 @@ private:
     stream_cfg_s _rx_cfg;
     long long _rx_cfg_lo_hz;
     QTimer *_tim;
+    QString _control_mode_available;
+    uint32_t _samples_count;
+
+    long long _lo_recv;
+    QVector<long long> _lo_scan;
+    QVector<int> _rx_gain_range;
+    QVector<long long> _rx_sampling_fre_range;
+    QVector<long long> _rx_bandwidth_range;
+    double _rbw;
+    int _div_cnt;
 
     QSharedPointer<iio> _iio_device;
     fftw_complex *_in;
@@ -63,6 +77,11 @@ private:
     void run_default_config();
     void run_config_device();
     void run_get_stream();
+
+    void run_get_ad9361_setting();
+    void set_send_rwb();
+
+    void get_bdwidth_div(float scan_width);
 };
 
 #endif //SPECTRUM_THREAD_IIO_HPP

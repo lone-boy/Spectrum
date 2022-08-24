@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1180</width>
-    <height>561</height>
+    <width>1200</width>
+    <height>547</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -135,380 +135,464 @@ background-color: rgb(233, 185, 110);</string>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(193, 125, 17);</string>
       </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QSplitter" name="splitter_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <widget class="QWidget" name="layoutWidget">
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QLabel" name="LO_label">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>400</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color: rgb(249, 205, 173);
+      <widget class="QWidget" name="widget_3" native="true">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>260</y>
+         <width>471</width>
+         <height>81</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(46, 52, 54);</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(238, 238, 236);</string>
+              </property>
+              <property name="text">
+               <string>Marker</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QCheckBox" name="checkBox_1">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(239, 41, 41);</string>
+                </property>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox_2">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(252, 175, 62);</string>
+                </property>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox_3">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(252, 233, 79);</string>
+                </property>
+                <property name="text">
+                 <string>3</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox_4">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(173, 127, 168);</string>
+                </property>
+                <property name="text">
+                 <string>4</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="dial_change" name="curson_switch">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(193, 125, 17);</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QSplitter" name="splitter_5">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>461</width>
+         <height>181</height>
+        </rect>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QSplitter" name="splitter_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QWidget" name="">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="LO_label">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>400</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(249, 205, 173);
 color: rgb(46, 52, 54);</string>
-               </property>
-               <property name="text">
-                <string>Frequency Hz</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_Fq">
-               <property name="styleSheet">
-                <string notr="true">background-color: rgb(46, 52, 54);
+              </property>
+              <property name="text">
+               <string>Frequency Hz</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_Fq">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(46, 52, 54);
 color: rgb(78, 154, 6);</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="BandWidth_label">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>400</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: rgb(46, 52, 54);
+background-color: rgb(249, 205, 173);</string>
+              </property>
+              <property name="text">
+               <string>Span MHz</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_Sp">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(46, 52, 54);
+color: rgb(78, 154, 6);</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QGroupBox" name="groupBox">
+              <property name="maximumSize">
+               <size>
+                <width>500</width>
+                <height>100</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(249, 205, 173);</string>
+              </property>
+              <property name="title">
+               <string>Rx Gain Mode</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_14">
+               <item>
+                <widget class="QRadioButton" name="radioButton_RG_manual">
+                 <property name="styleSheet">
+                  <string notr="true">selection-color: rgb(115, 210, 22);</string>
+                 </property>
+                 <property name="text">
+                  <string>manual</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_RG_slow">
+                 <property name="text">
+                  <string>slow_attack</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_RG_fast">
+                 <property name="text">
+                  <string>fast_attack</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_RG_hybrid">
+                 <property name="text">
+                  <string>hybrid</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_rwb">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(46, 52, 54);
+color: rgb(238, 238, 236);</string>
+            </property>
+            <property name="text">
+             <string>RWB:976Hz</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="dial_change" name="curson_rwb"/>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="">
+        <layout class="QHBoxLayout" name="horizontalLayout_15">
+         <item>
+          <widget class="QSplitter" name="splitter_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <widget class="QWidget" name="layoutWidget">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QLabel" name="BandWidth_label">
+              <widget class="selectnumber" name="number_select_10" native="true">
                <property name="minimumSize">
                 <size>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
                  <width>100</width>
+                 <height>200</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_9" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>400</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color: rgb(46, 52, 54);
-background-color: rgb(249, 205, 173);</string>
-               </property>
-               <property name="text">
-                <string>Span MHz</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_Sp">
-               <property name="styleSheet">
-                <string notr="true">background-color: rgb(46, 52, 54);
-color: rgb(78, 154, 6);</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QGroupBox" name="groupBox">
-               <property name="maximumSize">
-                <size>
-                 <width>500</width>
+                 <width>100</width>
                  <height>100</height>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(249, 205, 173);</string>
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
                </property>
-               <property name="title">
-                <string>Rx Gain Mode</string>
-               </property>
-               <layout class="QHBoxLayout" name="horizontalLayout_14">
-                <item>
-                 <widget class="QRadioButton" name="radioButton_RG_manual">
-                  <property name="styleSheet">
-                   <string notr="true">selection-color: rgb(115, 210, 22);</string>
-                  </property>
-                  <property name="text">
-                   <string>manual</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="radioButton_RG_slow">
-                  <property name="text">
-                   <string>slow_attack</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="radioButton_RG_fast">
-                  <property name="text">
-                   <string>fast_attack</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="radioButton_RG_hybrid">
-                  <property name="text">
-                   <string>hybrid</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_15">
-             <item>
-              <widget class="QSplitter" name="splitter_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <widget class="QWidget" name="layoutWidget">
-                <layout class="QHBoxLayout" name="horizontalLayout_3">
-                 <item>
-                  <widget class="selectnumber" name="number_select_10" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>200</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_9" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_8" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_7" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_6" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_5" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_4" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_3" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_2" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="selectnumber" name="number_select_1" native="true">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(46, 52, 54);</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="selectnumber" name="number_select_bw" native="true">
-                <property name="minimumSize">
-                 <size>
-                  <width>20</width>
-                  <height>30</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>100</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(46, 52, 54);</string>
-                </property>
-               </widget>
               </widget>
              </item>
              <item>
-              <widget class="selectnumber" name="number_select_gain" native="true">
+              <widget class="selectnumber" name="number_select_8" native="true">
                <property name="minimumSize">
                 <size>
-                 <width>50</width>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_7" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_6" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_5" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_4" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_3" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_2" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(46, 52, 54);</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="selectnumber" name="number_select_1" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
                  <height>30</height>
                 </size>
                </property>
@@ -524,88 +608,48 @@ color: rgb(78, 154, 6);</string>
               </widget>
              </item>
             </layout>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="widget_3" native="true">
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(46, 52, 54);</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_6">
-               <item>
-                <widget class="QPushButton" name="pushButton">
-                 <property name="styleSheet">
-                  <string notr="true">color: rgb(238, 238, 236);</string>
-                 </property>
-                 <property name="text">
-                  <string>Marker</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_6">
-                 <item>
-                  <widget class="QCheckBox" name="checkBox_1">
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(239, 41, 41);</string>
-                   </property>
-                   <property name="text">
-                    <string>1</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="checkBox_2">
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(252, 175, 62);</string>
-                   </property>
-                   <property name="text">
-                    <string>2</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="checkBox_3">
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(252, 233, 79);</string>
-                   </property>
-                   <property name="text">
-                    <string>3</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="checkBox_4">
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(173, 127, 168);</string>
-                   </property>
-                   <property name="text">
-                    <string>4</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="dial_change" name="curson_switch">
-               <property name="styleSheet">
-                <string notr="true">background-color: rgb(193, 125, 17);</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
+           </widget>
+           <widget class="selectnumber" name="number_select_bw" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(46, 52, 54);</string>
+            </property>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="selectnumber" name="number_select_gain" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(46, 52, 54);</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
      </widget>
     </widget>
    </item>

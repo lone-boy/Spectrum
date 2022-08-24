@@ -44,10 +44,15 @@ public:
     virtual bool connect_device(const std::string &ip) = 0;
     virtual bool set_ad9361_stream_dev(iodev d, stream_cfg_s cfg, int chid)  = 0;
     virtual void enable_iio_channel()  = 0;
-    virtual bool malloc_iio_buffer() = 0;
-    virtual void get_iio_data(fftw_complex *in, int fft_n) = 0;
-    virtual void set_ad9361_rx_gain_mode(iodev d, const char *mode, int chid) = 0;
-    virtual void set_ad9361_rx_gain_value(iodev d,long long value,int chid) = 0;
+    virtual bool malloc_iio_buffer(uint32_t samples_count) = 0;
+    virtual void get_iio_data(fftw_complex (*in), int fft_n, uint32_t samp_cnt) = 0;
+    virtual bool set_ad9361_rx_gain_mode(iodev d, const char *mode, int chid) = 0;
+    virtual bool set_ad9361_rx_gain_value(iodev d, long long value, int chid) = 0;
+    virtual void get_control_mode_available(iodev d, int chid, char control_mode_available[]) = 0;
+    virtual void get_rx_gain_value(int chid, char rx_gain_available[]) = 0;
+    virtual void get_sampling_frequency_available(iodev d, int chid, char frequency_available[]) = 0;
+    virtual void get_bandwidth_available(iodev d,int chid,char bandwidth[]) = 0;
+    virtual void set_ad9361_lo_hz(enum iodev type,int chid,long long lo_hz) = 0;
 };
 
 class iio_impl : public iio{
@@ -66,70 +71,19 @@ public:
         if(_ctx) iio_context_destroy(_ctx);
 
     }
-    void set_ad9361_rx_gain_mode(iodev d, const char *mode, int chid) override{
-        set_rx_gain_mode(d,mode,chid);
-    }
-    void set_ad9361_rx_gain_value(iodev d, long long value, int chid) override{
-        set_rx_gain_manual_value(d,value,chid);
-    }
-    bool malloc_iio_buffer() override{
-        LOG("* Create iio buffer *")
-//        iio_device_set_kernel_buffers_count(_rx,1);
-        _rx_buf = iio_device_create_buffer(_rx,1024*10, false);
-        if(!_rx_buf)
-        {
-            LOG("* Could not create Rx buffer *");
-            return false;
-        }
-        return true;
-    }
-    bool connect_device(const std::string &ip) override{
-        LOG("* Find context %s *" ,ip.c_str())
-        _ctx = iio_create_context_from_uri(ip.c_str());
-        if(_ctx == nullptr)
-        {
-            return false;
-        }
-        return true;
-    }
-    bool set_ad9361_stream_dev(iodev d, stream_cfg_s cfg, int chid) override{
-        if(_rx0_i) iio_channel_disable(_rx0_i);
-        if(_rx0_q) iio_channel_disable(_rx0_q);
+    bool set_ad9361_rx_gain_mode(iodev d, const char *mode, int chid) override;
+    bool set_ad9361_rx_gain_value(iodev d, long long value, int chid) override;
+    bool malloc_iio_buffer(uint32_t samples_count) override;
+    bool connect_device(const std::string &ip) override;
+    bool set_ad9361_stream_dev(iodev d, stream_cfg_s cfg, int chid) override;
+    void enable_iio_channel() override;
+    void get_iio_data(fftw_complex (*in), int fft_n, uint32_t samp_cnt) override;
+    void get_control_mode_available(iodev d, int chid, char control_mode_available[]) override;
+    void get_rx_gain_value(int chid, char rx_gain_available[]) override;
+    void get_sampling_frequency_available(iodev d, int chid, char frequency_available[]) override;
+    void get_bandwidth_available(iodev d,int chid,char bandwidth[]) override;
+    void set_ad9361_lo_hz(enum iodev type,int chid,long long lo_hz) override;
 
-        if(not get_ad9361_stream_dev(_ctx,d,&_rx)){
-            return false;
-        }
-
-        assert(get_ad9361_stream_dev(_ctx,d,&_rx) && "No _rx found");
-        assert(cfg_ad9361_stream_ch(_ctx, &cfg, d, chid) && "RX port 0 not found");
-        assert(get_ad9361_stream_ch(_ctx, RX, _rx, 0, &_rx0_i) && "RX chan i not found");
-        assert(get_ad9361_stream_ch(_ctx, RX, _rx, 1, &_rx0_q) && "RX chan q not found");
-
-        enable_iio_channel();
-        return true;
-    }
-    void enable_iio_channel() override{
-        iio_channel_enable(_rx0_i);
-        iio_channel_enable(_rx0_q);
-    }
-    void get_iio_data(fftw_complex *in, int fft_n) override{
-        ssize_t nbytes_rx;
-        ptrdiff_t p_inc;
-        void *_p_end;
-        nbytes_rx = iio_buffer_refill(_rx_buf);
-        if(nbytes_rx < 0) LOG(" *refill buff %d* ",(int)nbytes_rx)
-        p_inc = iio_buffer_step(_rx_buf);
-        _p_end = iio_buffer_end(_rx_buf);
-
-        int number = 10240 / fft_n;
-        int index = 0;
-        for(_p_data = iio_buffer_first(_rx_buf,_rx0_i);_p_data < _p_end;_p_data = (uint8_t *)_p_data + p_inc * number)
-        {
-            in[index][0] = ((int16_t*)_p_data)[0];
-            in[index][1] = ((int16_t*)_p_data)[1];
-            index++;
-        }
-    }
 private:
     iio_context *_ctx;
     iio_channel *_rx0_i;
@@ -151,8 +105,6 @@ private:
     bool get_phy_chan(struct iio_context *ctx,enum iodev d,int chid,struct iio_channel **chn);
     bool get_lo_chan(struct iio_context *ctx,enum iodev d,struct iio_channel **chn);
     bool cfg_ad9361_stream_ch(struct iio_context *ctx,struct stream_cfg *cfg,enum iodev type,int chid);
-    bool set_rx_gain_mode(enum iodev type, const char *mode, int chid);
-    bool set_rx_gain_manual_value(enum iodev type, long long int gain_value, int chid);
 };
 
 
