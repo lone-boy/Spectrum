@@ -18,8 +18,8 @@ device_config::device_config(QWidget *parent) :
         , ui(new Ui::device_config)
         , _work_thread(){
     _dial_action =  NO;
+    _is_reset_config = true;
     ui->setupUi(this);
-
     _label = new QCPItemText(ui->custom_plot);
     _label->setLayer("overlay");
     _label->setPen(QPen(Qt::white));
@@ -49,6 +49,15 @@ device_config::device_config(QWidget *parent) :
     _label4->setPen(QColor(173, 127, 168));
     _label4->setColor(QColor(173, 127, 168));
     _label4->setVisible(false);
+
+    ui->lineEdit_Fq->setText("100M");
+    ui->lineEdit_Sp->setText("1M");
+
+    QRegExp regx("[M-G-0-9]{0,5}");
+    ui->lineEdit_Sp->setValidator(new QRegExpValidator(regx,this));
+    QRegExp regx1("^[0-9][MG.{0}0-9]{0,12}");
+    ui->lineEdit_Fq->setValidator(new QRegExpValidator(regx1,this));
+
 
     this->setup_plot();
     ui->number_select_9->setCurValue(1);
@@ -114,8 +123,6 @@ device_config::device_config(QWidget *parent) :
 device_config::~device_config() {
     delete ui;
 }
-
-
 
 void device_config::on_button_power_clicked() {
     QString ip_addr = ui->ip_edit->text();
@@ -298,7 +305,7 @@ void device_config::setup_plot() {
 
 void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz, long long bd_width) {
     double center_M = (double )lo_hz / 1e6;
-    double scan_bw_width = 0;
+    double scan_bw_width;
     if(ui->number_select_bw->readValue() == 1)
     {
         scan_bw_width = (double)bd_width / (2 * 1000000);
@@ -391,8 +398,12 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         _label4->setVisible(false);
     }
 
-    ui->custom_plot->replot();
+    if(_is_reset_config){
+        ui->custom_plot->xAxis->rescale();
+        _is_reset_config = false;
+    }
     ui->custom_plot->xAxis->rescale();
+    ui->custom_plot->replot();
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
@@ -421,13 +432,22 @@ void device_config::recv_seletnumber_change(void) {
         ui->number_select_2->setCurValue(0);
         ui->number_select_1->setCurValue(0);
         emit send_config_lo(QString("70000000"));
-        ui->lineEdit_Fq->setText("70 000 000");
+        QString show = QString("70000000");
+        reset_edit_show(show);
+        ui->lineEdit_Fq->setText(show);
     }
     else{
-        ui->lineEdit_Fq->setText(device_config_para);
+        QString show = device_config_para;
+        reset_edit_show(show);
+        ui->lineEdit_Fq->setText(show);
         emit send_config_lo(device_config_para);
     }
+    QString scan_bd = ui->number_select_bw->getValueStr();
+    scan_bd.append("000000");
+    reset_edit_show(scan_bd);
+    ui->lineEdit_Sp->setText(scan_bd);
     emit send_config_band_width(ui->number_select_bw->getValueStr());
+    _is_reset_config = true;
 }
 
 void device_config::dial_change(bool is_add) {
@@ -497,11 +517,296 @@ void device_config::recv_RWB(QString rwb) {
     ui->label_rwb->setText(rwb);
 }
 
+void device_config::reset_edit_show(QString &text) {
+    double hz = text.toDouble();
+    if(hz < 1e9){
+        double number = hz / 1e6;
+        text.clear();
+        text.append(QString::number(number,'g',9));
+        text.append("M");
+    }
+    else{
+        double number = hz / 1e9;
+        text.clear();
+        text.append(QString::number(number,'g',12));
+        text.append("G");
+    }
+}
 
+void device_config::on_lineEdit_Fq_editingFinished() {
+    QString fq = ui->lineEdit_Fq->text();
+    /* find point */
+    auto index_point = fq.indexOf(".");
+    if(index_point >= 0){
+        QStringList fq_split = fq.split(".");
+        auto index_unit = fq_split.at(1).indexOf("M");
+        if(index_unit >= 0){
+            /* M */
+            QString after_point(fq_split.at(1).mid(0,fq_split.at(1).size() - 1));
+            switch (fq_split.at(0).size()) {
+                case 1:
+                    ui->number_select_10->setCurValue(0);
+                    ui->number_select_9->setCurValue(0);
+                    ui->number_select_8->setCurValue(0);
+                    ui->number_select_7->setCurValue(QString(fq_split.at(0).at(0)).toInt());
+                    break;
+                case 2:
+                    ui->number_select_10->setCurValue(0);
+                    ui->number_select_9->setCurValue(0);
+                    ui->number_select_8->setCurValue(QString(fq_split.at(0).at(0)).toInt());
+                    ui->number_select_7->setCurValue(QString(fq_split.at(0).at(1)).toInt());
+                    break;
+                case 3:
+                    ui->number_select_10->setCurValue(0);
+                    ui->number_select_9->setCurValue(QString(fq_split.at(0).at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(fq_split.at(0).at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(fq_split.at(0).at(2)).toInt());
+                    break;
+                case 4:
+                    ui->number_select_10->setCurValue(QString(fq_split.at(0).at(0)).toInt());
+                    ui->number_select_9->setCurValue(QString(fq_split.at(0).at(1)).toInt());
+                    ui->number_select_8->setCurValue(QString(fq_split.at(0).at(2)).toInt());
+                    ui->number_select_7->setCurValue(QString(fq_split.at(0).at(3)).toInt());
+                    break;
+                default:qDebug()<<"value error";break;
+            }
+            switch (after_point.size()) {
+                case 1:
+                    ui->number_select_6->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_5->setCurValue(0);
+                    ui->number_select_4->setCurValue(0);
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 2:
+                    ui->number_select_6->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_4->setCurValue(0);
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 3:
+                    ui->number_select_6->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 4:
+                    ui->number_select_6->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_3->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 5:
+                    ui->number_select_6->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_3->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_2->setCurValue(QString(after_point.at(4)).toInt());
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 6:
+                    ui->number_select_6->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_3->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_2->setCurValue(QString(after_point.at(4)).toInt());
+                    ui->number_select_1->setCurValue(QString(after_point.at(5)).toInt());
+                    break;
+                default:qDebug()<<"value error";break;
+            }
+        }
+        else{
+            QString after_point(fq_split.at(1).mid(0,fq_split.at(1).size() - 1));
+            ui->number_select_10->setCurValue(QString(fq_split.at(0).at(0)).toInt());
+            switch (after_point.size()) {
+                case 1:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(0);
+                    ui->number_select_7->setCurValue(0);
+                    ui->number_select_6->setCurValue(0);
+                    ui->number_select_5->setCurValue(0);
+                    ui->number_select_4->setCurValue(0);
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 2:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(0);
+                    ui->number_select_6->setCurValue(0);
+                    ui->number_select_5->setCurValue(0);
+                    ui->number_select_4->setCurValue(0);
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 3:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_6->setCurValue(0);
+                    ui->number_select_5->setCurValue(0);
+                    ui->number_select_4->setCurValue(0);
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 4:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_6->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_5->setCurValue(0);
+                    ui->number_select_4->setCurValue(0);
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 5:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_6->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(4)).toInt());
+                    ui->number_select_4->setCurValue(0);
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 6:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_6->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(4)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(5)).toInt());
+                    ui->number_select_3->setCurValue(0);
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 7:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_6->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(4)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(5)).toInt());
+                    ui->number_select_3->setCurValue(QString(after_point.at(6)).toInt());
+                    ui->number_select_2->setCurValue(0);
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 8:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_6->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(4)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(5)).toInt());
+                    ui->number_select_3->setCurValue(QString(after_point.at(6)).toInt());
+                    ui->number_select_2->setCurValue(QString(after_point.at(7)).toInt());
+                    ui->number_select_1->setCurValue(0);
+                    break;
+                case 9:
+                    ui->number_select_9->setCurValue(QString(after_point.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(after_point.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(after_point.at(2)).toInt());
+                    ui->number_select_6->setCurValue(QString(after_point.at(3)).toInt());
+                    ui->number_select_5->setCurValue(QString(after_point.at(4)).toInt());
+                    ui->number_select_4->setCurValue(QString(after_point.at(5)).toInt());
+                    ui->number_select_3->setCurValue(QString(after_point.at(6)).toInt());
+                    ui->number_select_2->setCurValue(QString(after_point.at(7)).toInt());
+                    ui->number_select_1->setCurValue(QString(after_point.at(8)).toInt());
+                    break;
+                default:
+                    qDebug() << "value error";
+                    break;
+            }
+        }
+    }
+    else{
+        auto index_unit = fq.indexOf("M");
+        if(index_unit >= 0){
+            /* M */
+            QString before_unit(fq.mid(0,fq.size() - 1));
+            switch (before_unit.size()) {
+                case 1:
+                    ui->number_select_10->setCurValue(0);
+                    ui->number_select_9->setCurValue(0);
+                    ui->number_select_8->setCurValue(0);
+                    ui->number_select_7->setCurValue(QString(before_unit.at(0)).toInt());
+                    break;
+                case 2:
+                    ui->number_select_10->setCurValue(0);
+                    ui->number_select_9->setCurValue(0);
+                    ui->number_select_8->setCurValue(QString(before_unit.at(0)).toInt());
+                    ui->number_select_7->setCurValue(QString(before_unit.at(1)).toInt());
+                    break;
+                case 3:
+                    ui->number_select_10->setCurValue(0);
+                    ui->number_select_9->setCurValue(QString(before_unit.at(0)).toInt());
+                    ui->number_select_8->setCurValue(QString(before_unit.at(1)).toInt());
+                    ui->number_select_7->setCurValue(QString(before_unit.at(2)).toInt());
+                    break;
+                case 4:
+                    ui->number_select_10->setCurValue(QString(before_unit.at(0)).toInt());
+                    ui->number_select_9->setCurValue(QString(before_unit.at(1)).toInt());
+                    ui->number_select_8->setCurValue(QString(before_unit.at(2)).toInt());
+                    ui->number_select_7->setCurValue(QString(before_unit.at(3)).toInt());
+                    break;
+                default:qDebug()<<"value error";break;
+            }
+            ui->number_select_6->setCurValue(0);
+            ui->number_select_5->setCurValue(0);
+            ui->number_select_4->setCurValue(0);
+            ui->number_select_3->setCurValue(0);
+            ui->number_select_2->setCurValue(0);
+            ui->number_select_1->setCurValue(0);
+        }
+        else{
+            QString before_unit(fq.mid(0,fq.size() - 1));
+            switch (before_unit.size()) {
+                case 1:
+                    ui->number_select_10->setCurValue(QString(before_unit.at(0)).toInt());
+                    break;
+                default:qDebug()<<"value error";break;
+            }
+            ui->number_select_9->setCurValue(0);
+            ui->number_select_8->setCurValue(0);
+            ui->number_select_7->setCurValue(0);
+            ui->number_select_6->setCurValue(0);
+            ui->number_select_5->setCurValue(0);
+            ui->number_select_4->setCurValue(0);
+            ui->number_select_3->setCurValue(0);
+            ui->number_select_2->setCurValue(0);
+            ui->number_select_1->setCurValue(0);
+        }
+    }
+    recv_seletnumber_change();
+}
 
+void device_config::on_lineEdit_Sp_editingFinished() {
+    QString sp = ui->lineEdit_Sp->text();
 
-
-
-
+    auto index_unit = sp.indexOf("M");
+    if(index_unit >= 0)
+    {
+        QString value_str = sp.mid(0,sp.size() - 1);
+        ui->number_select_bw->setCurValue(value_str.toInt());
+    }
+    else
+    {
+        QString value_str = sp.mid(0,sp.size() - 1);
+        ui->number_select_bw->setCurValue(value_str.toInt() * 1000);
+    }
+    recv_seletnumber_change();
+}
 
 

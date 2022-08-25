@@ -54,6 +54,9 @@ public slots:
     void on_radioButton_RG_hybrid_clicked();
     void on_radioButton_RG_manual_clicked();
     void on_radioButton_RG_slow_clicked();
+    /* line edit event */
+    void on_lineEdit_Fq_editingFinished();
+    void on_lineEdit_Sp_editingFinished();
 
 
 
@@ -79,7 +82,10 @@ private:
     QCPItemText *_label,*_label1,*_label2,*_label3,*_label4;
     int _dial_action;
     bool _new_cursor;
+    bool _is_reset_config;
     int _index_1,_index_2,_index_3,_index_4;
+
+    void reset_edit_show(QString &text);
 };
 
 

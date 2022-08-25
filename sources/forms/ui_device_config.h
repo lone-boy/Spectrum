@@ -57,7 +57,7 @@ public:
     dial_change *curson_switch;
     QSplitter *splitter_5;
     QSplitter *splitter_4;
-    QWidget *widget1;
+    QWidget *layoutWidget1;
     QVBoxLayout *verticalLayout_3;
     QHBoxLayout *horizontalLayout_2;
     QLabel *LO_label;
@@ -72,14 +72,14 @@ public:
     QRadioButton *radioButton_RG_slow;
     QRadioButton *radioButton_RG_fast;
     QRadioButton *radioButton_RG_hybrid;
-    QWidget *widget2;
+    QWidget *layoutWidget2;
     QVBoxLayout *verticalLayout_2;
     QLabel *label_rwb;
     dial_change *curson_rwb;
-    QWidget *widget3;
+    QWidget *layoutWidget3;
     QHBoxLayout *horizontalLayout_15;
     QSplitter *splitter_3;
-    QWidget *layoutWidget1;
+    QWidget *layoutWidget4;
     QHBoxLayout *horizontalLayout_3;
     selectnumber *number_select_10;
     selectnumber *number_select_9;
@@ -163,7 +163,7 @@ public:
         widget_2->setStyleSheet(QString::fromUtf8("background-color: rgb(193, 125, 17);"));
         widget_3 = new QWidget(widget_2);
         widget_3->setObjectName(QString::fromUtf8("widget_3"));
-        widget_3->setGeometry(QRect(10, 260, 471, 81));
+        widget_3->setGeometry(QRect(10, 220, 471, 81));
         widget_3->setStyleSheet(QString::fromUtf8("background-color: rgb(46, 52, 54);"));
         gridLayout = new QGridLayout(widget_3);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
@@ -220,29 +220,29 @@ public:
 
         splitter_5 = new QSplitter(widget_2);
         splitter_5->setObjectName(QString::fromUtf8("splitter_5"));
-        splitter_5->setGeometry(QRect(10, 20, 461, 181));
+        splitter_5->setGeometry(QRect(10, 10, 481, 201));
         splitter_5->setOrientation(Qt::Vertical);
         splitter_4 = new QSplitter(splitter_5);
         splitter_4->setObjectName(QString::fromUtf8("splitter_4"));
         splitter_4->setOrientation(Qt::Horizontal);
-        widget1 = new QWidget(splitter_4);
-        widget1->setObjectName(QString::fromUtf8("widget1"));
-        verticalLayout_3 = new QVBoxLayout(widget1);
+        layoutWidget1 = new QWidget(splitter_4);
+        layoutWidget1->setObjectName(QString::fromUtf8("layoutWidget1"));
+        verticalLayout_3 = new QVBoxLayout(layoutWidget1);
         verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
         verticalLayout_3->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        LO_label = new QLabel(widget1);
+        LO_label = new QLabel(layoutWidget1);
         LO_label->setObjectName(QString::fromUtf8("LO_label"));
         LO_label->setMinimumSize(QSize(100, 30));
         LO_label->setMaximumSize(QSize(400, 30));
-        LO_label->setStyleSheet(QString::fromUtf8("background-color: rgb(249, 205, 173);\n"
+        LO_label->setStyleSheet(QString::fromUtf8("background-color: rgb(211, 215, 207);\n"
 "color: rgb(46, 52, 54);"));
         LO_label->setAlignment(Qt::AlignCenter);
 
         horizontalLayout_2->addWidget(LO_label);
 
-        lineEdit_Fq = new QLineEdit(widget1);
+        lineEdit_Fq = new QLineEdit(layoutWidget1);
         lineEdit_Fq->setObjectName(QString::fromUtf8("lineEdit_Fq"));
         lineEdit_Fq->setStyleSheet(QString::fromUtf8("background-color: rgb(46, 52, 54);\n"
 "color: rgb(78, 154, 6);"));
@@ -255,17 +255,17 @@ public:
 
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
-        BandWidth_label = new QLabel(widget1);
+        BandWidth_label = new QLabel(layoutWidget1);
         BandWidth_label->setObjectName(QString::fromUtf8("BandWidth_label"));
         BandWidth_label->setMinimumSize(QSize(100, 30));
         BandWidth_label->setMaximumSize(QSize(400, 30));
         BandWidth_label->setStyleSheet(QString::fromUtf8("color: rgb(46, 52, 54);\n"
-"background-color: rgb(249, 205, 173);"));
+"background-color: rgb(211, 215, 207);"));
         BandWidth_label->setAlignment(Qt::AlignCenter);
 
         horizontalLayout_4->addWidget(BandWidth_label);
 
-        lineEdit_Sp = new QLineEdit(widget1);
+        lineEdit_Sp = new QLineEdit(layoutWidget1);
         lineEdit_Sp->setObjectName(QString::fromUtf8("lineEdit_Sp"));
         lineEdit_Sp->setStyleSheet(QString::fromUtf8("background-color: rgb(46, 52, 54);\n"
 "color: rgb(78, 154, 6);"));
@@ -278,10 +278,10 @@ public:
 
         horizontalLayout_5 = new QHBoxLayout();
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
-        groupBox = new QGroupBox(widget1);
+        groupBox = new QGroupBox(layoutWidget1);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         groupBox->setMaximumSize(QSize(500, 100));
-        groupBox->setStyleSheet(QString::fromUtf8("background-color: rgb(249, 205, 173);"));
+        groupBox->setStyleSheet(QString::fromUtf8("background-color: rgb(211, 215, 207);"));
         horizontalLayout_14 = new QHBoxLayout(groupBox);
         horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
         radioButton_RG_manual = new QRadioButton(groupBox);
@@ -312,13 +312,13 @@ public:
 
         verticalLayout_3->addLayout(horizontalLayout_5);
 
-        splitter_4->addWidget(widget1);
-        widget2 = new QWidget(splitter_4);
-        widget2->setObjectName(QString::fromUtf8("widget2"));
-        verticalLayout_2 = new QVBoxLayout(widget2);
+        splitter_4->addWidget(layoutWidget1);
+        layoutWidget2 = new QWidget(splitter_4);
+        layoutWidget2->setObjectName(QString::fromUtf8("layoutWidget2"));
+        verticalLayout_2 = new QVBoxLayout(layoutWidget2);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-        label_rwb = new QLabel(widget2);
+        label_rwb = new QLabel(layoutWidget2);
         label_rwb->setObjectName(QString::fromUtf8("label_rwb"));
         label_rwb->setMinimumSize(QSize(0, 50));
         label_rwb->setStyleSheet(QString::fromUtf8("background-color: rgb(46, 52, 54);\n"
@@ -327,27 +327,27 @@ public:
 
         verticalLayout_2->addWidget(label_rwb);
 
-        curson_rwb = new dial_change(widget2);
+        curson_rwb = new dial_change(layoutWidget2);
         curson_rwb->setObjectName(QString::fromUtf8("curson_rwb"));
 
         verticalLayout_2->addWidget(curson_rwb);
 
-        splitter_4->addWidget(widget2);
+        splitter_4->addWidget(layoutWidget2);
         splitter_5->addWidget(splitter_4);
-        widget3 = new QWidget(splitter_5);
-        widget3->setObjectName(QString::fromUtf8("widget3"));
-        horizontalLayout_15 = new QHBoxLayout(widget3);
+        layoutWidget3 = new QWidget(splitter_5);
+        layoutWidget3->setObjectName(QString::fromUtf8("layoutWidget3"));
+        horizontalLayout_15 = new QHBoxLayout(layoutWidget3);
         horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
         horizontalLayout_15->setContentsMargins(0, 0, 0, 0);
-        splitter_3 = new QSplitter(widget3);
+        splitter_3 = new QSplitter(layoutWidget3);
         splitter_3->setObjectName(QString::fromUtf8("splitter_3"));
         splitter_3->setOrientation(Qt::Horizontal);
-        layoutWidget1 = new QWidget(splitter_3);
-        layoutWidget1->setObjectName(QString::fromUtf8("layoutWidget1"));
-        horizontalLayout_3 = new QHBoxLayout(layoutWidget1);
+        layoutWidget4 = new QWidget(splitter_3);
+        layoutWidget4->setObjectName(QString::fromUtf8("layoutWidget4"));
+        horizontalLayout_3 = new QHBoxLayout(layoutWidget4);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
-        number_select_10 = new selectnumber(layoutWidget1);
+        number_select_10 = new selectnumber(layoutWidget4);
         number_select_10->setObjectName(QString::fromUtf8("number_select_10"));
         number_select_10->setMinimumSize(QSize(20, 30));
         number_select_10->setMaximumSize(QSize(100, 200));
@@ -355,7 +355,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_10);
 
-        number_select_9 = new selectnumber(layoutWidget1);
+        number_select_9 = new selectnumber(layoutWidget4);
         number_select_9->setObjectName(QString::fromUtf8("number_select_9"));
         number_select_9->setMinimumSize(QSize(20, 30));
         number_select_9->setMaximumSize(QSize(100, 100));
@@ -363,7 +363,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_9);
 
-        number_select_8 = new selectnumber(layoutWidget1);
+        number_select_8 = new selectnumber(layoutWidget4);
         number_select_8->setObjectName(QString::fromUtf8("number_select_8"));
         number_select_8->setMinimumSize(QSize(20, 30));
         number_select_8->setMaximumSize(QSize(100, 100));
@@ -371,7 +371,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_8);
 
-        number_select_7 = new selectnumber(layoutWidget1);
+        number_select_7 = new selectnumber(layoutWidget4);
         number_select_7->setObjectName(QString::fromUtf8("number_select_7"));
         number_select_7->setMinimumSize(QSize(20, 30));
         number_select_7->setMaximumSize(QSize(100, 100));
@@ -379,7 +379,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_7);
 
-        number_select_6 = new selectnumber(layoutWidget1);
+        number_select_6 = new selectnumber(layoutWidget4);
         number_select_6->setObjectName(QString::fromUtf8("number_select_6"));
         number_select_6->setMinimumSize(QSize(20, 30));
         number_select_6->setMaximumSize(QSize(100, 100));
@@ -387,7 +387,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_6);
 
-        number_select_5 = new selectnumber(layoutWidget1);
+        number_select_5 = new selectnumber(layoutWidget4);
         number_select_5->setObjectName(QString::fromUtf8("number_select_5"));
         number_select_5->setMinimumSize(QSize(20, 30));
         number_select_5->setMaximumSize(QSize(100, 100));
@@ -395,7 +395,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_5);
 
-        number_select_4 = new selectnumber(layoutWidget1);
+        number_select_4 = new selectnumber(layoutWidget4);
         number_select_4->setObjectName(QString::fromUtf8("number_select_4"));
         number_select_4->setMinimumSize(QSize(20, 30));
         number_select_4->setMaximumSize(QSize(100, 100));
@@ -403,7 +403,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_4);
 
-        number_select_3 = new selectnumber(layoutWidget1);
+        number_select_3 = new selectnumber(layoutWidget4);
         number_select_3->setObjectName(QString::fromUtf8("number_select_3"));
         number_select_3->setMinimumSize(QSize(20, 30));
         number_select_3->setMaximumSize(QSize(100, 100));
@@ -411,7 +411,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_3);
 
-        number_select_2 = new selectnumber(layoutWidget1);
+        number_select_2 = new selectnumber(layoutWidget4);
         number_select_2->setObjectName(QString::fromUtf8("number_select_2"));
         number_select_2->setMinimumSize(QSize(20, 30));
         number_select_2->setMaximumSize(QSize(100, 100));
@@ -419,7 +419,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_2);
 
-        number_select_1 = new selectnumber(layoutWidget1);
+        number_select_1 = new selectnumber(layoutWidget4);
         number_select_1->setObjectName(QString::fromUtf8("number_select_1"));
         number_select_1->setMinimumSize(QSize(20, 30));
         number_select_1->setMaximumSize(QSize(100, 100));
@@ -427,7 +427,7 @@ public:
 
         horizontalLayout_3->addWidget(number_select_1);
 
-        splitter_3->addWidget(layoutWidget1);
+        splitter_3->addWidget(layoutWidget4);
         number_select_bw = new selectnumber(splitter_3);
         number_select_bw->setObjectName(QString::fromUtf8("number_select_bw"));
         number_select_bw->setMinimumSize(QSize(20, 30));
@@ -437,7 +437,7 @@ public:
 
         horizontalLayout_15->addWidget(splitter_3);
 
-        number_select_gain = new selectnumber(widget3);
+        number_select_gain = new selectnumber(layoutWidget3);
         number_select_gain->setObjectName(QString::fromUtf8("number_select_gain"));
         number_select_gain->setMinimumSize(QSize(50, 30));
         number_select_gain->setMaximumSize(QSize(100, 100));
@@ -445,7 +445,7 @@ public:
 
         horizontalLayout_15->addWidget(number_select_gain);
 
-        splitter_5->addWidget(widget3);
+        splitter_5->addWidget(layoutWidget3);
         splitter_2->addWidget(widget_2);
 
         gridLayout_2->addWidget(splitter_2, 0, 0, 1, 1);

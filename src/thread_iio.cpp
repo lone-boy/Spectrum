@@ -271,23 +271,19 @@ void iio_thread::recv_config_bd(QString bd_width) {
                 _rx_cfg.fs_hz = _rx_cfg.bw_hz;
             _fft_n_coefficient = 4;
             FFT_N = FFT_BASE*pow(2,_fft_n_coefficient);
-            qDebug() << "FFT_N:" << FFT_N;
             _rbw = _rx_cfg.bw_hz / FFT_N;
             _samples_count = FFT_N;
             fftw_free(_in);
             fftw_free(_out);
             _in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
             _out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
-            if(_iio_device->malloc_iio_buffer(_samples_count)){
-                qDebug() << "malloc iio buffer succeed";
-            }
-            else
-                qDebug() << "malloc iio buffer failed";
+            _iio_device->malloc_iio_buffer(_samples_count);
             _lo_scan.push_back(_lo_recv);
             _rx_cfg.lo_hz = _lo_scan.at(0);
             if(_is_run_rx){
                 /* calculate RWB(Resolution Bandwidth) */
-                run_config_device();
+                _iio_device->set_ad9361_lo_hz(RX,0,_rx_cfg.lo_hz);
+                _iio_device->set_ad9361_bd_hz(RX,0,_rx_cfg.bw_hz);
             }
         }
         else{
@@ -296,11 +292,7 @@ void iio_thread::recv_config_bd(QString bd_width) {
             double _div_width = _scan_width / 2.0;
             _div_cnt = 0;
             get_bdwidth_div(_scan_width);
-
             _div_width = _scan_width / pow(2,_div_cnt);
-//            qDebug ()<<_scan_width;
-//            qDebug() << _div_cnt;
-//            qDebug() << _div_width;
             long long start_scan_lo = _lo_recv - (MHZ(_scan_width) / 2.0) + (MHZ(_div_width) / 2.0);
             for(int i = 0;i < (int)pow(2,_div_cnt);i++)
             {
@@ -308,26 +300,21 @@ void iio_thread::recv_config_bd(QString bd_width) {
             }
             _rx_cfg.bw_hz = MHZ(_div_width);
             _rx_cfg.fs_hz = _rx_cfg.bw_hz;
-            run_config_device();
+            if(_is_run_rx){
+                _iio_device->set_ad9361_lo_hz(RX,0,_rx_cfg.lo_hz);
+                _iio_device->set_ad9361_bd_hz(RX,0,_rx_cfg.bw_hz);
+            }
             _fft_n_coefficient = 4;
             FFT_N = FFT_BASE*pow(2,_fft_n_coefficient);
-            qDebug() << "FFT_N:" << FFT_N;
             _rbw = _rx_cfg.bw_hz / FFT_N;
             _samples_count = FFT_N;
             fftw_free(_in);
             fftw_free(_out);
             _in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
             _out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
-            if(_iio_device->malloc_iio_buffer(_samples_count)){
-                qDebug() << "malloc iio buffer succeed";
-            }
-            else
-                qDebug() << "malloc iio buffer failed";
+            _iio_device->malloc_iio_buffer(_samples_count);
         }
     }
-
-
-
     set_send_rwb();
 }
 
@@ -370,10 +357,7 @@ void iio_thread::recv_RWB(bool is_add) {
     fftw_free(_out);
     _in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
     _out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
-    if(_iio_device->malloc_iio_buffer(_samples_count)){
-        qDebug() << "malloc iio buffer succeed";
-    }
-    else
+    if(_iio_device->malloc_iio_buffer(_samples_count))
         qDebug() << "malloc iio buffer failed";
     set_send_rwb();
 }

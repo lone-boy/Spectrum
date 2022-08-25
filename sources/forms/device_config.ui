@@ -139,7 +139,7 @@ background-color: rgb(233, 185, 110);</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>260</y>
+         <y>220</y>
          <width>471</width>
          <height>81</height>
         </rect>
@@ -223,9 +223,9 @@ background-color: rgb(233, 185, 110);</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>20</y>
-         <width>461</width>
-         <height>181</height>
+         <y>10</y>
+         <width>481</width>
+         <height>201</height>
         </rect>
        </property>
        <property name="orientation">
@@ -235,7 +235,7 @@ background-color: rgb(233, 185, 110);</string>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -254,7 +254,7 @@ background-color: rgb(233, 185, 110);</string>
                </size>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(249, 205, 173);
+               <string notr="true">background-color: rgb(211, 215, 207);
 color: rgb(46, 52, 54);</string>
               </property>
               <property name="text">
@@ -299,7 +299,7 @@ color: rgb(78, 154, 6);</string>
               </property>
               <property name="styleSheet">
                <string notr="true">color: rgb(46, 52, 54);
-background-color: rgb(249, 205, 173);</string>
+background-color: rgb(211, 215, 207);</string>
               </property>
               <property name="text">
                <string>Span MHz</string>
@@ -333,7 +333,7 @@ color: rgb(78, 154, 6);</string>
                </size>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(249, 205, 173);</string>
+               <string notr="true">background-color: rgb(211, 215, 207);</string>
               </property>
               <property name="title">
                <string>Rx Gain Mode</string>
@@ -380,7 +380,7 @@ color: rgb(78, 154, 6);</string>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QLabel" name="label_rwb">
@@ -408,7 +408,7 @@ color: rgb(238, 238, 236);</string>
          </layout>
         </widget>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <layout class="QHBoxLayout" name="horizontalLayout_15">
          <item>
           <widget class="QSplitter" name="splitter_3">

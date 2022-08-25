@@ -235,6 +235,18 @@ void iio_impl::set_ad9361_lo_hz(enum iodev type, int chid, long long int lo_hz) 
     wr_ch_lli(chn, "frequency", lo_hz);
 }
 
+void iio_impl::set_ad9361_bd_hz(enum iodev type, int chid, long long int bd_hz) {
+    struct iio_channel *chn = nullptr;
+    if (!get_phy_chan(_ctx, type, chid, &chn)) {	return; }
+    wr_ch_lli(chn, "rf_bandwidth",       bd_hz);
+}
+
+void iio_impl::set_ad9361_fs_hz(enum iodev type, int chid, long long int fs) {
+    struct iio_channel *chn = nullptr;
+    if (!get_phy_chan(_ctx, type, chid, &chn)) {	return; }
+    wr_ch_lli(chn, "sampling_frequency",       fs);
+}
+
 
 iio::sptr iio::make_iio()
 {

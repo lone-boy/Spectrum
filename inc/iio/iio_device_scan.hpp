@@ -53,6 +53,8 @@ public:
     virtual void get_sampling_frequency_available(iodev d, int chid, char frequency_available[]) = 0;
     virtual void get_bandwidth_available(iodev d,int chid,char bandwidth[]) = 0;
     virtual void set_ad9361_lo_hz(enum iodev type,int chid,long long lo_hz) = 0;
+    virtual void set_ad9361_bd_hz(enum iodev type,int chid,long long bd_hz) = 0;
+    virtual void set_ad9361_fs_hz(enum iodev type,int chid,long long fs) = 0;
 };
 
 class iio_impl : public iio{
@@ -83,7 +85,8 @@ public:
     void get_sampling_frequency_available(iodev d, int chid, char frequency_available[]) override;
     void get_bandwidth_available(iodev d,int chid,char bandwidth[]) override;
     void set_ad9361_lo_hz(enum iodev type,int chid,long long lo_hz) override;
-
+    void set_ad9361_bd_hz(enum iodev type,int chid,long long bd_hz) override;
+    void set_ad9361_fs_hz(enum iodev type,int chid,long long fs) override;
 private:
     iio_context *_ctx;
     iio_channel *_rx0_i;
