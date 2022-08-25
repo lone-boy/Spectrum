@@ -1,5 +1,7 @@
 ---
-typora-root-url: ./
+Author: jcc
+E-mail:995586238@qq.com
+typora-root-url: .
 ---
 
 # Spectrum
