@@ -379,6 +379,7 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         _new_cursor = false;
     }
 
+    int range_y = (int)(ui->custom_plot->yAxis->range().upper - ui->custom_plot->yAxis->range().lower) / 2;
     if(ui->checkBox_1->checkState() == Qt::Checked){
         QVector<double>x1_plot,y1_plot;
         x1_plot << x[(int)_index_1];
@@ -386,9 +387,8 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
 //        _label1->position->setCoords(x1_plot[0],y1_plot[0]+5);
         ui->custom_plot->graph(3)->setData(x1_plot,y1_plot);
         _label1->setText(QString("%1MHz , %2dBm").arg(x1_plot[0]).arg(y1_plot[0]));
-        qDebug () << _label1->clipAxisRect()->size();
         _label1->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
-                                    this->ui->custom_plot->yAxis->range().upper - 10);
+                                    this->ui->custom_plot->yAxis->range().upper - (range_y / 4));
     } else{
         ui->custom_plot->graph(3)->data().data()->clear();
         _label1->setVisible(false);
@@ -397,7 +397,9 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         QVector<double>x2_plot,y2_plot;
         x2_plot << x[(int)_index_2];
         y2_plot << fft_data[(int)_index_2];
-        _label2->position->setCoords(x2_plot[0],y2_plot[0]+5);
+//        _label2->position->setCoords(x2_plot[0],y2_plot[0]+5);
+        _label2->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                     this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*2);
         ui->custom_plot->graph(4)->setData(x2_plot,y2_plot);
         _label2->setText(QString("%1MHz , %2dBm").arg(x2_plot[0]).arg(y2_plot[0]));
     } else{
@@ -408,7 +410,9 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         QVector<double>x3_plot,y3_plot;
         x3_plot << x[(int)_index_3];
         y3_plot << fft_data[(int)_index_3];
-        _label3->position->setCoords(x3_plot[0],y3_plot[0]+5);
+//        _label3->position->setCoords(x3_plot[0],y3_plot[0]+5);
+        _label3->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                     this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*3);
         ui->custom_plot->graph(5)->setData(x3_plot,y3_plot);
         _label3->setText(QString("%1MHz , %2dBm").arg(x3_plot[0]).arg(y3_plot[0]));
     } else{
@@ -419,7 +423,9 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         QVector<double>x4_plot,y4_plot;
         x4_plot << x[(int)_index_4];
         y4_plot << fft_data[(int)_index_4];
-        _label4->position->setCoords(x4_plot[0],y4_plot[0]+5);
+//        _label4->position->setCoords(x4_plot[0],y4_plot[0]+5);
+        _label4->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                     this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*4);
         ui->custom_plot->graph(6)->setData(x4_plot,y4_plot);
         _label4->setText(QString("%1MHz , %2dBm").arg(x4_plot[0]).arg(y4_plot[0]));
     } else{
@@ -473,7 +479,7 @@ void device_config::recv_seletnumber_change(void) {
         emit send_config_lo(device_config_para);
     }
     QString scan_bd = ui->number_select_bw->getValueStr();
-    scan_bd.append("000000");
+    scan_bd.append("000000");   /* MHz to Hz */
     reset_edit_show(scan_bd);
     ui->lineEdit_Sp->setText(scan_bd);
     emit send_config_band_width(ui->number_select_bw->getValueStr());
@@ -846,6 +852,37 @@ void device_config::on_lineEdit_Sp_editingFinished() {
         ui->number_select_bw->setCurValue(value_str.toInt() * 1000);
     }
     recv_seletnumber_change();
+}
+
+
+/**
+ * screen shot
+ * QDateTime::currentDateTime() get current time
+ * */
+void device_config::on_button_screen_shot_clicked() {
+    QString fileName;
+    QPixmap pix, bmp;
+    pix = bmp.grabWidget(ui->custom_plot,0,0,ui->custom_plot->width(),ui->custom_plot->height());
+    fileName = QFileDialog::getSaveFileName(this,"Save",QCoreApplication::applicationDirPath());
+    if(fileName.isEmpty())
+        return;
+
+    if(!fileName.contains(".BMP")){
+        fileName = fileName+".BMP";
+    }
+    if (pix.isNull())
+    {
+        QMessageBox::information(this, "Error", "shot failed !", QMessageBox::Ok);
+
+    }
+    else {
+        if (!pix.save(fileName, "BMP")) {
+            QMessageBox::information(this, "Right", "Save error !", QMessageBox::Ok);
+
+        } else {
+            QMessageBox::information(this, "Grab", "Save ok!", QMessageBox::Ok);
+        }
+    }
 }
 
 

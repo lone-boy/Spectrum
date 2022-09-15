@@ -48,7 +48,7 @@ public:
     QGridLayout *gridLayout;
     QHBoxLayout *horizontalLayout_7;
     QVBoxLayout *verticalLayout_6;
-    QPushButton *pushButton;
+    QPushButton *button_screen_shot;
     QHBoxLayout *horizontalLayout_6;
     QCheckBox *checkBox_1;
     QCheckBox *checkBox_2;
@@ -171,11 +171,11 @@ public:
         horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
         verticalLayout_6 = new QVBoxLayout();
         verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
-        pushButton = new QPushButton(widget_3);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setStyleSheet(QString::fromUtf8("color: rgb(238, 238, 236);"));
+        button_screen_shot = new QPushButton(widget_3);
+        button_screen_shot->setObjectName(QString::fromUtf8("button_screen_shot"));
+        button_screen_shot->setStyleSheet(QString::fromUtf8("color: rgb(238, 238, 236);"));
 
-        verticalLayout_6->addWidget(pushButton);
+        verticalLayout_6->addWidget(button_screen_shot);
 
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
@@ -468,7 +468,7 @@ public:
         ip_edit->setPlaceholderText(QApplication::translate("device_config", "ip:192.168.2.1", nullptr));
         status->setText(QString());
         status->setPlaceholderText(QApplication::translate("device_config", "OFF", nullptr));
-        pushButton->setText(QApplication::translate("device_config", "Marker", nullptr));
+        button_screen_shot->setText(QApplication::translate("device_config", "Screenshot", nullptr));
         checkBox_1->setText(QApplication::translate("device_config", "1", nullptr));
         checkBox_2->setText(QApplication::translate("device_config", "2", nullptr));
         checkBox_3->setText(QApplication::translate("device_config", "3", nullptr));

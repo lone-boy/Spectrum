@@ -75,6 +75,8 @@ public slots:
     /* line edit event */
     void on_lineEdit_Fq_editingFinished();
     void on_lineEdit_Sp_editingFinished();
+    void on_button_screen_shot_clicked();
+
 private slots:
     void recv_message(const QString& message);
     void recv_RWB(QString);
