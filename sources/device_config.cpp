@@ -12,6 +12,23 @@
 #include "qvalidator.h"
 #include "fft/fftw3.h"
 
+draw_gui::draw_gui(QCustomPlot *draw)
+: _draw(draw)
+{
+}
+
+draw_gui::~draw_gui() noexcept {}
+
+void draw_gui::run() {
+    while(1){
+        usleep(100);
+    }
+}
+
+void draw_gui::recv_draw_fft_cmd() {
+    _draw->replot(QCustomPlot::rpQueuedReplot);
+}
+
 
 device_config::device_config(QWidget *parent) :
         QWidget(parent)
@@ -24,30 +41,35 @@ device_config::device_config(QWidget *parent) :
     _label->setLayer("overlay");
     _label->setPen(QPen(Qt::white));
     _label->setColor(Qt::white);
+    _label->setFont(QFont(font().family(),10));
     _label->setVisible(false);
 
     _label1 = new QCPItemText(ui->custom_plot);
     _label1->setLayer("overlay");
     _label1->setPen(QPen(Qt::red));
     _label1->setColor(Qt::red);
+    _label1->setFont(QFont(font().family(),10));
     _label1->setVisible(false);
 
     _label2 = new QCPItemText(ui->custom_plot);
     _label2->setLayer("overlay");
     _label2->setPen(QColor(252, 175, 62));
     _label2->setColor(QColor(252, 175, 62));
+    _label2->setFont(QFont(font().family(),10));
     _label2->setVisible(false);
 
     _label3 = new QCPItemText(ui->custom_plot);
     _label3->setLayer("overlay");
     _label3->setPen(QColor(252, 233, 79));
     _label3->setColor(QColor(252, 233, 79));
+    _label3->setFont(QFont(font().family(),10));
     _label3->setVisible(false);
 
     _label4 = new QCPItemText(ui->custom_plot);
     _label4->setLayer("overlay");
     _label4->setPen(QColor(173, 127, 168));
     _label4->setColor(QColor(173, 127, 168));
+    _label4->setFont(QFont(font().family(),10));
     _label4->setVisible(false);
 
     ui->lineEdit_Fq->setText("100M");
@@ -66,6 +88,7 @@ device_config::device_config(QWidget *parent) :
     ui->number_select_gain->setRange(-3,71);
     ui->number_select_gain->setCurValue(70);
     _work_thread.reset(new(iio_thread));
+    _draw_thread.reset(new draw_gui(ui->custom_plot));
 
     QObject::connect(this, SIGNAL(send_message(QString)),
                      _work_thread.get(),SLOT(recv_info_ip(QString)));
@@ -115,9 +138,11 @@ device_config::device_config(QWidget *parent) :
                      _work_thread.get(), SLOT(recv_RWB(bool)));
     QObject::connect(_work_thread.get(), SIGNAL(send_RWB(QString)),
                      this,SLOT(recv_RWB(QString)));
+    QObject::connect(this, SIGNAL(send_draw_fft()),
+                     _draw_thread.get(), SLOT(recv_draw_fft_cmd()));
 
     _work_thread->start();
-
+    _draw_thread->start();
 }
 
 device_config::~device_config() {
@@ -128,11 +153,10 @@ void device_config::on_button_power_clicked() {
     QString ip_addr = ui->ip_edit->text();
     _label->setVisible(true);
     emit send_message(ip_addr);
-
 }
 
 void device_config::on_button_disconnect_clicked() {
-    ui->custom_plot->replot();
+    ui->custom_plot->replot(QCustomPlot::rpQueuedReplot);
     emit send_discon_message();
 }
 
@@ -266,7 +290,7 @@ void device_config::setup_plot() {
     ui->custom_plot->graph(1)->setPen(QPen(Qt::red));
     ui->custom_plot->addGraph();
     QPen draw_pen;
-    draw_pen.setColor(Qt::green);
+    draw_pen.setColor(Qt::white);
     draw_pen.setWidth(4);
     ui->custom_plot->graph(2)->setPen(draw_pen);
     ui->custom_plot->graph(2)->setLineStyle(QCPGraph::lsNone);
@@ -330,7 +354,9 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
     ui->custom_plot->graph(0)->setData(x,fft_data);
     ui->custom_plot->graph(1)->setData(x,max_x);
     ui->custom_plot->graph(2)->setData(x_plot,y_plot);
-    _label->position->setCoords(x_plot[0],y_plot[0] + 5);
+    _label->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                this->ui->custom_plot->yAxis->range().upper - 5);
+//    _label->position->setCoords(x_plot[0],y_plot[0] + 5);
     _label->setText(QString("%1MHz , %2dBm").arg(x_plot[0]).arg(y_plot[0]));
 
     if(_new_cursor){
@@ -357,9 +383,12 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         QVector<double>x1_plot,y1_plot;
         x1_plot << x[(int)_index_1];
         y1_plot << fft_data[(int)_index_1];
-        _label1->position->setCoords(x1_plot[0],y1_plot[0]+5);
+//        _label1->position->setCoords(x1_plot[0],y1_plot[0]+5);
         ui->custom_plot->graph(3)->setData(x1_plot,y1_plot);
         _label1->setText(QString("%1MHz , %2dBm").arg(x1_plot[0]).arg(y1_plot[0]));
+        qDebug () << _label1->clipAxisRect()->size();
+        _label1->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                    this->ui->custom_plot->yAxis->range().upper - 10);
     } else{
         ui->custom_plot->graph(3)->data().data()->clear();
         _label1->setVisible(false);
@@ -403,7 +432,8 @@ void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long
         _is_reset_config = false;
     }
     ui->custom_plot->xAxis->rescale();
-    ui->custom_plot->replot();
+    emit(send_draw_fft());
+//    ui->custom_plot->replot(QCustomPlot::rpQueuedReplot);
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
@@ -517,6 +547,9 @@ void device_config::recv_RWB(QString rwb) {
     ui->label_rwb->setText(rwb);
 }
 
+/**
+ * This is function reset edit show
+ * */
 void device_config::reset_edit_show(QString &text) {
     double hz = text.toDouble();
     if(hz < 1e9){
@@ -533,6 +566,9 @@ void device_config::reset_edit_show(QString &text) {
     }
 }
 
+/**
+ * This function is edit Frequency by lineedit
+ * */
 void device_config::on_lineEdit_Fq_editingFinished() {
     QString fq = ui->lineEdit_Fq->text();
     /* find point */
@@ -792,6 +828,9 @@ void device_config::on_lineEdit_Fq_editingFinished() {
     recv_seletnumber_change();
 }
 
+/**
+ * This function is edit Span width by lineedit
+ * */
 void device_config::on_lineEdit_Sp_editingFinished() {
     QString sp = ui->lineEdit_Sp->text();
 

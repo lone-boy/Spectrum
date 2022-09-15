@@ -11,11 +11,28 @@
 #include "qt/thread_iio.hpp"
 #include "QSharedPointer"
 #include "qt/qcustomplot.h"
+#include "QTimer"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class device_config; }
 QT_END_NAMESPACE
 
+class draw_gui : public QThread{
+Q_OBJECT
+public:
+    explicit draw_gui(QCustomPlot *draw);
+    ~draw_gui();
+
+    void run();
+
+private:
+    QCustomPlot *_draw;
+//    void draw_fft_data();
+
+public slots:
+    void recv_draw_fft_cmd();
+
+};
 
 enum dial_action{
     NO = 0,
@@ -38,6 +55,7 @@ signals:
     void send_rx_gain_mode(QString rx_mode);
     void send_rx_gain_value(QString gain_value);
     void send_RWB_change(bool);
+    void send_draw_fft();
 
 public slots:
     void on_button_power_clicked();
@@ -57,9 +75,6 @@ public slots:
     /* line edit event */
     void on_lineEdit_Fq_editingFinished();
     void on_lineEdit_Sp_editingFinished();
-
-
-
 private slots:
     void recv_message(const QString& message);
     void recv_RWB(QString);
@@ -73,6 +88,7 @@ private slots:
 
 private:
     QSharedPointer<iio_thread> _work_thread;
+    QSharedPointer<draw_gui> _draw_thread;
     Ui::device_config *ui;
     virtual void closeEvent(QCloseEvent *event) override;
 
@@ -87,6 +103,7 @@ private:
 
     void reset_edit_show(QString &text);
 };
+
 
 
 #endif //SPECTRUM_DEVICE_CONFIG_H

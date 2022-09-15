@@ -144,8 +144,8 @@ void iio_impl::get_iio_data(fftw_complex (*in), int fft_n, uint32_t samp_cnt) {
     {
         if(number >= start && index <  fft_n)
         {
-            in[index][0] = ((int16_t*)_p_data)[0];
-            in[index][1] = ((int16_t*)_p_data)[1];
+            in[index][0] = (((int16_t*)_p_data)[0]);
+            in[index][1] = (((int16_t*)_p_data)[1]);
             index++;
         }
         number++;

@@ -6,7 +6,10 @@
 #include "QMutex"
 #include "cmath"
 
-
+/**
+ * This thread is that configure iio device and get IQ data\n
+ * after IQ data fft change,then send point by qt signal/slot
+ * */
 iio_thread::iio_thread()
 {
     _is_stop = false;
@@ -22,14 +25,17 @@ iio_thread::iio_thread()
     _out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFT_N);
     _scan_width = 1; /* 1MHz */
     _send_data.resize(FFT_N);
-    _tim = new QTimer();
-    _tim->setInterval(80);
     _div_cnt = 1;
     _lo_recv = MHZ(100);
+    _tim = new QTimer();
+    _tim->setInterval(60);
     connect(_tim,SIGNAL(timeout()),this,SLOT(time_send_fft()));
     _tim->start();
 }
 
+/**
+ * This function close thread
+ * */
 void iio_thread::close_thread() {
     _is_stop = true;
 }
@@ -49,13 +55,16 @@ void iio_thread::run() {
         if(_try_connect)
         {
             run_default_config();
-            run_get_ad9361_setting();
+            if(_is_run_rx)
+                run_get_ad9361_setting();
         }
-
         usleep(10);
     }
 }
 
+/**
+ * this function is configure iio_device
+ * */
 void iio_thread::run_default_config() {
     bool is_connect;
     is_connect = _iio_device->connect_device(_ip);
@@ -80,6 +89,7 @@ void iio_thread::run_default_config() {
     }
     _try_connect = false;
 }
+
 void iio_thread::run_config_device() {
     if(_iio_device->set_ad9361_stream_dev(RX, _rx_cfg, 0)){
         _is_run_rx = true;
@@ -88,6 +98,7 @@ void iio_thread::run_config_device() {
         _is_run_rx = false;
     }
 }
+
 void iio_thread::run_get_stream() {
     fftw_plan p;
     /* scan band width step is 1MHz */
@@ -114,7 +125,7 @@ void iio_thread::run_get_stream() {
         }
     }
     else{
-        for(int index = 0;index < _lo_scan.size();index++){
+        for(int index = 0;index < (int)_lo_scan.size();index++){
             _rx_cfg.lo_hz = _lo_scan.at(index);
             _iio_device->set_ad9361_lo_hz(RX,0,_rx_cfg.lo_hz);
             _iio_device->get_iio_data(_in, FFT_N, _samples_count);
@@ -139,9 +150,8 @@ void iio_thread::run_get_stream() {
             }
         }
     }
-
-
 }
+
 void iio_thread::run_get_ad9361_setting() {
     char tmp[50];
     QString get_str_tmp;
@@ -178,7 +188,6 @@ void iio_thread::run_get_ad9361_setting() {
     _rx_bandwidth_range.push_back(get_str_list_tmp.at(2).toLongLong());
     qDebug() << "* rx bandwidth range *:" << _rx_bandwidth_range;
 }
-
 
 void iio_thread::recv_info_ip(QString info) {
     if(info.compare("stop") == 0){
@@ -222,8 +231,8 @@ void iio_thread::recv_discon_button() {
         _rx_sampling_fre_range.clear();
         _rx_bandwidth_range.clear();
     }
-    else{
-    }
+//    else{
+//    }
 }
 
 void iio_thread::time_send_fft() {
@@ -259,7 +268,9 @@ void iio_thread::recv_config_bd(QString bd_width) {
         _rx_cfg.lo_hz = _lo_scan.at(0);
         if(_is_run_rx){
         /* calculate RWB(Resolution Bandwidth) */
-            run_config_device();
+            _iio_device->set_ad9361_lo_hz(RX,0,_rx_cfg.lo_hz);
+            _iio_device->set_ad9361_bd_hz(RX,0,_rx_cfg.bw_hz);
+            _iio_device->set_ad9361_fs_hz(RX,0,_rx_cfg.fs_hz);
         }
     }
     else{
@@ -284,6 +295,7 @@ void iio_thread::recv_config_bd(QString bd_width) {
                 /* calculate RWB(Resolution Bandwidth) */
                 _iio_device->set_ad9361_lo_hz(RX,0,_rx_cfg.lo_hz);
                 _iio_device->set_ad9361_bd_hz(RX,0,_rx_cfg.bw_hz);
+                _iio_device->set_ad9361_fs_hz(RX,0,_rx_cfg.fs_hz);
             }
         }
         else{
@@ -303,6 +315,7 @@ void iio_thread::recv_config_bd(QString bd_width) {
             if(_is_run_rx){
                 _iio_device->set_ad9361_lo_hz(RX,0,_rx_cfg.lo_hz);
                 _iio_device->set_ad9361_bd_hz(RX,0,_rx_cfg.bw_hz);
+                _iio_device->set_ad9361_fs_hz(RX,0,_rx_cfg.fs_hz);
             }
             _fft_n_coefficient = 4;
             FFT_N = FFT_BASE*pow(2,_fft_n_coefficient);
@@ -375,13 +388,16 @@ void iio_thread::set_send_rwb() {
     emit(send_RWB(rwb_string));
 }
 
+/**
+ * get bandwidth div for recursive call chain
+ * */
 void iio_thread::get_bdwidth_div(float scan_width) {
     if(scan_width <= 5)
     {
         return ;
     }
     _div_cnt++;
-    get_bdwidth_div(scan_width / 2.0);
+    get_bdwidth_div(scan_width / 2.0f);
 }
 
 
