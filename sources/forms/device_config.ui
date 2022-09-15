@@ -209,6 +209,13 @@ background-color: rgb(233, 185, 110);</string>
            </layout>
           </item>
           <item>
+           <widget class="QLineEdit" name="frequency_line_edit">
+            <property name="styleSheet">
+             <string notr="true">color: rgb(238, 238, 236);</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="dial_change" name="curson_switch">
             <property name="styleSheet">
              <string notr="true">background-color: rgb(193, 125, 17);</string>

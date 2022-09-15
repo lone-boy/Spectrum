@@ -54,6 +54,7 @@ public:
     QCheckBox *checkBox_2;
     QCheckBox *checkBox_3;
     QCheckBox *checkBox_4;
+    QLineEdit *frequency_line_edit;
     dial_change *curson_switch;
     QSplitter *splitter_5;
     QSplitter *splitter_4;
@@ -208,6 +209,12 @@ public:
 
 
         horizontalLayout_7->addLayout(verticalLayout_6);
+
+        frequency_line_edit = new QLineEdit(widget_3);
+        frequency_line_edit->setObjectName(QString::fromUtf8("frequency_line_edit"));
+        frequency_line_edit->setStyleSheet(QString::fromUtf8("color: rgb(238, 238, 236);"));
+
+        horizontalLayout_7->addWidget(frequency_line_edit);
 
         curson_switch = new dial_change(widget_3);
         curson_switch->setObjectName(QString::fromUtf8("curson_switch"));

@@ -140,6 +140,11 @@ device_config::device_config(QWidget *parent) :
                      this,SLOT(recv_RWB(QString)));
     QObject::connect(this, SIGNAL(send_draw_fft()),
                      _draw_thread.get(), SLOT(recv_draw_fft_cmd()));
+    QObject::connect(this->ui->custom_plot, &QCustomPlot::mouseMove,
+                     this,[=](QMouseEvent *event){
+        float x_fre = ui->custom_plot->xAxis->pixelToCoord(event->pos().x());
+        ui->frequency_line_edit->setText(QString::number(x_fre,'f') + "MHz");
+    });
 
     _work_thread->start();
     _draw_thread->start();
@@ -854,7 +859,6 @@ void device_config::on_lineEdit_Sp_editingFinished() {
     recv_seletnumber_change();
 }
 
-
 /**
  * screen shot
  * QDateTime::currentDateTime() get current time
@@ -873,16 +877,15 @@ void device_config::on_button_screen_shot_clicked() {
     if (pix.isNull())
     {
         QMessageBox::information(this, "Error", "shot failed !", QMessageBox::Ok);
-
     }
     else {
         if (!pix.save(fileName, "BMP")) {
             QMessageBox::information(this, "Right", "Save error !", QMessageBox::Ok);
-
         } else {
             QMessageBox::information(this, "Grab", "Save ok!", QMessageBox::Ok);
         }
     }
 }
+
 
 
