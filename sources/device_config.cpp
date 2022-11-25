@@ -10,7 +10,7 @@
 #include "qwidget.h"
 #include "qdebug.h"
 #include "qvalidator.h"
-#include "fft/fftw3.h"
+#include "mathcommon.h"
 
 draw_gui::draw_gui(QCustomPlot *draw)
 : _draw(draw)
@@ -34,6 +34,7 @@ device_config::device_config(QWidget *parent) :
         QWidget(parent)
         , ui(new Ui::device_config)
         , _work_thread(){
+    _avarge_cnt = 1;
     _dial_action =  NO;
     _is_reset_config = true;
     ui->setupUi(this);
@@ -85,7 +86,7 @@ device_config::device_config(QWidget *parent) :
     ui->number_select_9->setCurValue(1);
     ui->number_select_bw->setRange(3,1000);
     ui->number_select_bw->setCurValue(3);
-    ui->number_select_gain->setRange(-3,71);
+    ui->number_select_gain->setRange(-3,100);
     ui->number_select_gain->setCurValue(70);
     _work_thread.reset(new(iqProcess));
     _draw_thread.reset(new draw_gui(ui->custom_plot));
@@ -100,7 +101,7 @@ device_config::device_config(QWidget *parent) :
                      _work_thread.get(),SLOT(recv_frequency(QString)));
     QObject::connect(this,SIGNAL(send_config_band_width(QString)),
                      _work_thread.get(),SLOT(recv_config_span(QString)));
-    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(const QVector<double>, int ,double,double)),
+    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(QVector<double>, int ,double,double)),
                      this,SLOT(recv_fft_data(QVector<double>, int, double,double)));
 
     QObject::connect(ui->number_select_10,SIGNAL(send_value_changed(void)),
@@ -130,12 +131,12 @@ device_config::device_config(QWidget *parent) :
 
 
 
-//    QObject::connect(this->ui->curson_switch, SIGNAL(dial_is_change(bool)),
-//                     this,SLOT(dial_change(bool)));
+    QObject::connect(this->ui->curson_switch, SIGNAL(dial_is_change(bool)),
+                     this,SLOT(dial_change(bool)));
 //    QObject::connect(this, SIGNAL(send_rx_gain_mode(QString)),
 //                     _work_thread.get(), SLOT(recv_rx_gain_mode(QString)));
-//    QObject::connect(this, SIGNAL(send_rx_gain_value(QString)),
-//                     _work_thread.get(),SLOT(recv_rx_gain_value(QString)));
+    QObject::connect(this, SIGNAL(send_rx_gain_value(QString)),
+                     _work_thread.get(),SLOT(recv_rx_gain_value(QString)));
     QObject::connect(this->ui->curson_rwb, SIGNAL(dial_is_change(bool)),
                      this, SLOT(dial_RWB_change(bool)));
     QObject::connect(this, SIGNAL(send_RWB_change(bool)),
@@ -349,6 +350,10 @@ void device_config::recv_fft_data(QVector<double> fft_data, int sample_cnt, doub
         {
             x[i] = (center_M - fs_M / 2)+ i*fs_M / sample_cnt;
         }
+
+
+        fft_data_avarage(fft_data,_avarge_cnt,sample_cnt);
+
         auto max_value = std::max_element(std::begin(fft_data),std::end(fft_data));
         auto position_max = std::distance(std::begin(fft_data),max_value);
         QVector<double>x_plot,y_plot;
@@ -389,7 +394,6 @@ void device_config::recv_fft_data(QVector<double> fft_data, int sample_cnt, doub
             QVector<double>x1_plot,y1_plot;
             x1_plot << x[(int)_index_1];
             y1_plot << fft_data[(int)_index_1];
-//        _label1->position->setCoords(x1_plot[0],y1_plot[0]+5);
             ui->custom_plot->graph(3)->setData(x1_plot,y1_plot);
             _label1->setText(QString("%1MHz , %2dBm").arg(x1_plot[0]).arg(y1_plot[0]));
             _label1->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
@@ -402,7 +406,6 @@ void device_config::recv_fft_data(QVector<double> fft_data, int sample_cnt, doub
             QVector<double>x2_plot,y2_plot;
             x2_plot << x[(int)_index_2];
             y2_plot << fft_data[(int)_index_2];
-//        _label2->position->setCoords(x2_plot[0],y2_plot[0]+5);
             _label2->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
                                          this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*2);
             ui->custom_plot->graph(4)->setData(x2_plot,y2_plot);
@@ -415,7 +418,6 @@ void device_config::recv_fft_data(QVector<double> fft_data, int sample_cnt, doub
             QVector<double>x3_plot,y3_plot;
             x3_plot << x[(int)_index_3];
             y3_plot << fft_data[(int)_index_3];
-//        _label3->position->setCoords(x3_plot[0],y3_plot[0]+5);
             _label3->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
                                          this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*3);
             ui->custom_plot->graph(5)->setData(x3_plot,y3_plot);
@@ -428,7 +430,6 @@ void device_config::recv_fft_data(QVector<double> fft_data, int sample_cnt, doub
             QVector<double>x4_plot,y4_plot;
             x4_plot << x[(int)_index_4];
             y4_plot << fft_data[(int)_index_4];
-//        _label4->position->setCoords(x4_plot[0],y4_plot[0]+5);
             _label4->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
                                          this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*4);
             ui->custom_plot->graph(6)->setData(x4_plot,y4_plot);
@@ -861,6 +862,12 @@ void device_config::on_lineEdit_Sp_editingFinished() {
     recv_seletnumber_change();
 }
 
+void device_config::on_avarge_point_editingFinished(){
+    /* get avage */
+    if(ui->avarge_point->text().toInt() >= 1){
+        _avarge_cnt = ui->avarge_point->text().toInt();
+    }
+}
 /**
  * screen shot
  * QDateTime::currentDateTime() get current time

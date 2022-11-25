@@ -10,6 +10,7 @@ bool checkout = false;
 bool frame = false;
 
 iqProcess *iqProcess::pThis = nullptr;
+#define RXCHANNEL 0
 
 iqProcess::iqProcess() {
     pThis = this;
@@ -43,9 +44,13 @@ void iqProcess::recv_info_ip(QString info) {
     if(not _isrun && not _device){
         if(info.isEmpty()){
             _device = mp::sdrDevice::make_sdrDevice("iio","ip:192.168.1.10");
+//            _device = mp::sdrDevice::make_sdrDevice("uhd","addr=192.168.1.10");
+
         }
         else{
             _device = mp::sdrDevice::make_sdrDevice("iio",info.toStdString());
+//            _device = mp::sdrDevice::make_sdrDevice("uhd",info.toStdString());
+
         }
         if(_device){
             _device ->sdr_open();
@@ -139,8 +144,8 @@ void iqProcess::recv_config_span(QString bd_width) {
                 fftw_free(_out_iq);
                 _in_iq = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * _sample_cnt);
                 _out_iq = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * _sample_cnt);
-                this->_device->sdr_set_bandwidth(_fs,0);
-                this->_device->sdr_set_samplerate(_fs,0);
+                this->_device->sdr_set_bandwidth(_fs,RXCHANNEL);
+                this->_device->sdr_set_samplerate(_fs,RXCHANNEL);
                 this->_device->sdr_set_lo_frequency(_frequency);
                 checkout = true;
                 _scan_cnt = 0;
@@ -170,8 +175,8 @@ void iqProcess::recv_config_span(QString bd_width) {
                 _out_iq = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * _sample_cnt);
                 this->_device->sdr_set_reset_rx_samplecount(_sample_cnt);
                 this->_device->sdr_set_lo_frequency(frequency_lo_start);
-                this->_device->sdr_set_samplerate(_fs,0);
-                this->_device->sdr_set_bandwidth(_fs,0);
+                this->_device->sdr_set_samplerate(_fs,RXCHANNEL);
+                this->_device->sdr_set_bandwidth(_fs,RXCHANNEL);
                 checkout = true;
                 _scan_cnt = 0;
                 _send_data.clear();
@@ -241,8 +246,8 @@ void iqProcess::run() {
     _out_iq = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * _sample_cnt);
     _rbw = _fs / _sample_cnt;
     _device->sdr_set_rx_samplecnt(_sample_cnt);
-    _device->sdr_set_bandwidth(_fs,0);
-    _device->sdr_set_samplerate(_fs,0);
+    _device->sdr_set_bandwidth(_fs,RXCHANNEL);
+    _device->sdr_set_samplerate(_fs,RXCHANNEL);
     _device->sdr_set_lo_frequency(_frequency_scan[0]);
 
     _device->sdr_start_rx(iqProcess::get_rx_data);
@@ -272,6 +277,7 @@ void iqProcess::pow2db(void) {
         double A = 2 * M / _sample_cnt;
         _fft_data[j] = 20 * log10(A / 1e3);
     }
+
     _send_data.append(_fft_data);
     _fft_data.clear();
 }
@@ -302,5 +308,10 @@ void iqProcess::time_send_fft() {
     sync.lock();
     frame = true;
     sync.unlock();
+}
+
+void iqProcess::recv_rx_gain_value(QString gain_value) {
+    if(_isrun)
+        _device->sdr_set_gain(gain_value.toDouble(),RXCHANNEL);
 }
 

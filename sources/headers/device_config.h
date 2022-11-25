@@ -76,6 +76,7 @@ public slots:
     void on_lineEdit_Fq_editingFinished();
     void on_lineEdit_Sp_editingFinished();
     void on_button_screen_shot_clicked();
+    void on_avarge_point_editingFinished();
 
 private slots:
     void recv_message(const QString& message);
@@ -102,6 +103,8 @@ private:
     bool _new_cursor;
     bool _is_reset_config;
     int _index_1,_index_2,_index_3,_index_4;
+
+    int _avarge_cnt;
 
     void reset_edit_show(QString &text);
 };

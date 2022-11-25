@@ -33,17 +33,14 @@ private slots:
     void recv_RWB(bool);
 
     void time_send_fft();
-//    void recv_config_value(QString config);
-//    void recv_config_bd(QString bd_width);
-//
+
 //    void recv_rx_gain_mode(QString rx_mode);
-//    void recv_rx_gain_value(QString gain_value);
-//
-//    void recv_RWB(bool);
+    void recv_rx_gain_value(QString gain_value);
+
 
 signals:
     void send_info(QString info);
-    void send_fft_data(const QVector<double> fft_data, int sample_cnt, double frequency, double fs);
+    void send_fft_data(QVector<double> fft_data, int sample_cnt, double frequency, double fs);
     void send_RWB(QString RWB);
 
 private:

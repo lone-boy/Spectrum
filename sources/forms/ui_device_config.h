@@ -76,6 +76,7 @@ public:
     QWidget *layoutWidget2;
     QVBoxLayout *verticalLayout_2;
     QLabel *label_rwb;
+    QLineEdit *avarge_point;
     dial_change *curson_rwb;
     QWidget *layoutWidget3;
     QHBoxLayout *horizontalLayout_15;
@@ -334,6 +335,13 @@ public:
 
         verticalLayout_2->addWidget(label_rwb);
 
+        avarge_point = new QLineEdit(layoutWidget2);
+        avarge_point->setObjectName(QString::fromUtf8("avarge_point"));
+        avarge_point->setStyleSheet(QString::fromUtf8("background-color: rgb(52, 101, 164);"));
+        avarge_point->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_2->addWidget(avarge_point);
+
         curson_rwb = new dial_change(layoutWidget2);
         curson_rwb->setObjectName(QString::fromUtf8("curson_rwb"));
 
@@ -489,6 +497,7 @@ public:
         radioButton_RG_fast->setText(QApplication::translate("device_config", "fast_attack", nullptr));
         radioButton_RG_hybrid->setText(QApplication::translate("device_config", "hybrid", nullptr));
         label_rwb->setText(QApplication::translate("device_config", "RWB:976Hz", nullptr));
+        avarge_point->setText(QApplication::translate("device_config", "1", nullptr));
     } // retranslateUi
 
 };

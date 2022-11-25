@@ -35,7 +35,7 @@ add_executable(Spectrum main.cpp
         inc/fft/fftw3.h sources/selectnumber.cpp sources/headers/selectnumber.h
         inc/iio/ad9361.h sources/headers/dial_change.h sources/dial_change.cpp
         inc/log.h inc/sdrDevice.h
-        src/log.cpp src/sdrDevice.cpp)
+        src/log.cpp src/sdrDevice.cpp inc/mathcommon.h)
 
 target_link_libraries(Spectrum
         Qt5::Core

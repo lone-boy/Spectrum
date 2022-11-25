@@ -72,16 +72,16 @@ public:
         this->set_ad9361_lo_hz(RX, (long long) frequency);
     }
     void sdr_set_gain(double gain, int channel) override{
-        this->set_ad9361_rx_gain(RX,channel,(int)gain);
+        this->set_ad9361_rx_gain(RX,static_cast<int>(gain),channel);
     }
     bool sdr_check(int channel) override{
         if(_rx0_i) iio_channel_disable(_rx0_i);
         if(_rx0_q) iio_channel_disable(_rx0_q);
         set_ad9361_rx_gain_mode(RX,"manual",channel);
-        this->sdr_set_bandwidth(2e6,0);
-        this->sdr_set_gain(50,0);
+        this->sdr_set_bandwidth(2e6,channel);
+        this->sdr_set_gain(70,channel);
         this->sdr_set_lo_frequency(100.1e6);
-        this->sdr_set_samplerate(2e6 * 1.25f,0);
+        this->sdr_set_samplerate(2e6 * 1.25f,channel);
 
         if(not get_ad9361_stream_dev(RX, &_rx))
             this->_log.ERROR("No stream dev ...");
@@ -366,11 +366,11 @@ public:
         _uhd_device->set_rx_bandwidth(bandwidth,channel);
     }
     void sdr_set_lo_frequency(double frequency) override{
-        this->_log.DEBUG("Sdr set lo frequency ...");
+//        this->_log.DEBUG("Sdr set lo frequency ...");
         uhd::tune_result_t actual = _uhd_device->set_rx_freq(frequency);
         string log("Sdr actual get ");
         log += to_string(actual.actual_rf_freq);
-        this->_log.DEBUG(log);
+//        this->_log.DEBUG(log);
     }
     bool sdr_check(int channel) override{
         this->_log.DEBUG("Sdr check ...");
@@ -401,6 +401,7 @@ public:
                       << std::endl;
             UHD_ASSERT_THROW(ref_locked.to_bool());
         }
+        _uhd_device->set_rx_agc(false,0);
         return true;
     }
     void sdr_set_rx_samplecnt(uint32_t sample_cnt) override{
@@ -461,7 +462,7 @@ void uhdDevice::RXSync_thread() {
             if(_is_rx_buff_resize){
                 _buff.resize(_sample_size * 2);
             }
-            int num_rx_samps = _rx_stream->recv(&_buff.front(),_sample_size,md,3.0, false);
+            int num_rx_samps = _rx_stream->recv(&_buff.front(),_sample_size,md,0.0, false);
             if(num_rx_samps == _sample_size){
                 trans.length = num_rx_samps;
             }

@@ -102,7 +102,7 @@ background-color: rgb(233, 185, 110);</string>
            <string/>
           </property>
           <property name="placeholderText">
-           <string>ip:192.168.2.1</string>
+           <string>ip:192.168.1.10</string>
           </property>
          </widget>
         </item>
@@ -403,6 +403,19 @@ color: rgb(238, 238, 236);</string>
             </property>
             <property name="text">
              <string>RWB:976Hz</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="avarge_point">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(52, 101, 164);</string>
+            </property>
+            <property name="text">
+             <string>1</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
