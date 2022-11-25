@@ -85,11 +85,11 @@ private slots:
     void recv_selet_gain_change(void);
 
     /* draw */
-    void recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz, long long bd_width);
+    void recv_fft_data(QVector<double> fft_data, int sample_cnt, double frequency, double fs);
 
 
 private:
-    QSharedPointer<iio_thread> _work_thread;
+    QSharedPointer<iqProcess> _work_thread;
     QSharedPointer<draw_gui> _draw_thread;
     Ui::device_config *ui;
     virtual void closeEvent(QCloseEvent *event) override;

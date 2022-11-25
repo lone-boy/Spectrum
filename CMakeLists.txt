@@ -33,7 +33,9 @@ add_executable(Spectrum main.cpp
         src/iio_device_scan.cpp inc/qt/thread_iio.hpp src/thread_iio.cpp
         inc/qt/qcustomplot.h src/qcustomplot.cpp
         inc/fft/fftw3.h sources/selectnumber.cpp sources/headers/selectnumber.h
-        inc/iio/ad9361.h sources/headers/dial_change.h sources/dial_change.cpp)
+        inc/iio/ad9361.h sources/headers/dial_change.h sources/dial_change.cpp
+        inc/log.h inc/sdrDevice.h
+        src/log.cpp src/sdrDevice.cpp)
 
 target_link_libraries(Spectrum
         Qt5::Core
@@ -44,5 +46,7 @@ target_link_libraries(Spectrum
         libfftw3.a
         libad9361.so
         boost_system
+        pthread
+        uhd
         )
 

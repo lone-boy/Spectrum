@@ -73,7 +73,7 @@ device_config::device_config(QWidget *parent) :
     _label4->setVisible(false);
 
     ui->lineEdit_Fq->setText("100M");
-    ui->lineEdit_Sp->setText("1M");
+    ui->lineEdit_Sp->setText("3M");
 
     QRegExp regx("[M-G-0-9]{0,5}");
     ui->lineEdit_Sp->setValidator(new QRegExpValidator(regx,this));
@@ -83,11 +83,11 @@ device_config::device_config(QWidget *parent) :
 
     this->setup_plot();
     ui->number_select_9->setCurValue(1);
-    ui->number_select_bw->setRange(1,1000);
-    ui->number_select_bw->setCurValue(1);
+    ui->number_select_bw->setRange(3,1000);
+    ui->number_select_bw->setCurValue(3);
     ui->number_select_gain->setRange(-3,71);
     ui->number_select_gain->setCurValue(70);
-    _work_thread.reset(new(iio_thread));
+    _work_thread.reset(new(iqProcess));
     _draw_thread.reset(new draw_gui(ui->custom_plot));
 
     QObject::connect(this, SIGNAL(send_message(QString)),
@@ -96,8 +96,13 @@ device_config::device_config(QWidget *parent) :
                      this,SLOT(recv_message(QString)));
     QObject::connect(this, SIGNAL(send_discon_message()),
                      _work_thread.get(), SLOT(recv_discon_button()));
-    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(QVector<double>, int,long long,long long)),
-                     this,SLOT(recv_fft_data(QVector<double>, int, long long, long long)));
+    QObject::connect(this, SIGNAL(send_config_lo(QString)),
+                     _work_thread.get(),SLOT(recv_frequency(QString)));
+    QObject::connect(this,SIGNAL(send_config_band_width(QString)),
+                     _work_thread.get(),SLOT(recv_config_span(QString)));
+    QObject::connect(_work_thread.get(), SIGNAL(send_fft_data(const QVector<double>, int ,double,double)),
+                     this,SLOT(recv_fft_data(QVector<double>, int, double,double)));
+
     QObject::connect(ui->number_select_10,SIGNAL(send_value_changed(void)),
                      this,SLOT(recv_seletnumber_change(void)));
     QObject::connect(ui->number_select_9,SIGNAL(send_value_changed(void)),
@@ -122,16 +127,15 @@ device_config::device_config(QWidget *parent) :
                      this,SLOT(recv_seletnumber_change(void)));
     QObject::connect(ui->number_select_gain, SIGNAL(send_value_changed()),
                      this,SLOT(recv_selet_gain_change()));
-    QObject::connect(this, SIGNAL(send_config_lo(QString)),
-                     _work_thread.get(),SLOT(recv_config_value(QString)));
-    QObject::connect(this,SIGNAL(send_config_band_width(QString)),
-                     _work_thread.get(),SLOT(recv_config_bd(QString)));
-    QObject::connect(this->ui->curson_switch, SIGNAL(dial_is_change(bool)),
-                     this,SLOT(dial_change(bool)));
-    QObject::connect(this, SIGNAL(send_rx_gain_mode(QString)),
-                     _work_thread.get(), SLOT(recv_rx_gain_mode(QString)));
-    QObject::connect(this, SIGNAL(send_rx_gain_value(QString)),
-                     _work_thread.get(),SLOT(recv_rx_gain_value(QString)));
+
+
+
+//    QObject::connect(this->ui->curson_switch, SIGNAL(dial_is_change(bool)),
+//                     this,SLOT(dial_change(bool)));
+//    QObject::connect(this, SIGNAL(send_rx_gain_mode(QString)),
+//                     _work_thread.get(), SLOT(recv_rx_gain_mode(QString)));
+//    QObject::connect(this, SIGNAL(send_rx_gain_value(QString)),
+//                     _work_thread.get(),SLOT(recv_rx_gain_value(QString)));
     QObject::connect(this->ui->curson_rwb, SIGNAL(dial_is_change(bool)),
                      this, SLOT(dial_RWB_change(bool)));
     QObject::connect(this, SIGNAL(send_RWB_change(bool)),
@@ -146,7 +150,6 @@ device_config::device_config(QWidget *parent) :
         ui->frequency_line_edit->setText(QString::number(x_fre,'f') + "MHz");
     });
 
-    _work_thread->start();
     _draw_thread->start();
 }
 
@@ -158,11 +161,13 @@ void device_config::on_button_power_clicked() {
     QString ip_addr = ui->ip_edit->text();
     _label->setVisible(true);
     emit send_message(ip_addr);
+    _work_thread->start();
 }
 
 void device_config::on_button_disconnect_clicked() {
     ui->custom_plot->replot(QCustomPlot::rpQueuedReplot);
     emit send_discon_message();
+    _work_thread->exit();
 }
 
 void device_config::on_checkBox_1_clicked() {
@@ -332,120 +337,117 @@ void device_config::setup_plot() {
     ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
-void device_config::recv_fft_data(QVector<double> fft_data, int fft_n, long long lo_hz, long long bd_width) {
-    double center_M = (double )lo_hz / 1e6;
-    double scan_bw_width;
-    if(ui->number_select_bw->readValue() == 1)
-    {
-        scan_bw_width = (double)bd_width / (2 * 1000000);
-    }
-    else{
-        scan_bw_width = (double)bd_width / 1000000;
-    }
-    QVector<double> x;
-    x.resize(fft_n);
-    for(int i = 0;i<x.size();i++)
-    {
-        x[i] = (center_M - (double)scan_bw_width / 2)+(double)i*scan_bw_width / fft_n;
-    }
-    auto max_value = std::max_element(std::begin(fft_data),std::end(fft_data));
-    auto position_max = std::distance(std::begin(fft_data),max_value);
-    QVector<double>x_plot,y_plot;
-    x_plot << x[(int)position_max];
-    y_plot << fft_data[(int)position_max];
+void device_config::recv_fft_data(QVector<double> fft_data, int sample_cnt, double frequency, double fs) {
+    if(fft_data.size() == sample_cnt  && sample_cnt != 0){
+        double center_M = frequency / 1e6;
+        double fs_M = fs / 1e6;
 
-    QVector<double> max_x(fft_n,*max_value);
+        QVector<double> x;
+        x.resize(sample_cnt);
 
-    ui->custom_plot->graph(0)->setData(x,fft_data);
-    ui->custom_plot->graph(1)->setData(x,max_x);
-    ui->custom_plot->graph(2)->setData(x_plot,y_plot);
-    _label->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
-                                this->ui->custom_plot->yAxis->range().upper - 5);
-//    _label->position->setCoords(x_plot[0],y_plot[0] + 5);
-    _label->setText(QString("%1MHz , %2dBm").arg(x_plot[0]).arg(y_plot[0]));
-
-    if(_new_cursor){
-        switch(_dial_action){
-            case NO:
-                break;
-            case Box_1:
-                _index_1 = (int)position_max;
-                break;
-            case Box_2:
-                _index_2 = (int)position_max;
-                break;
-            case Box_3:
-                _index_3 = (int)position_max;
-                break;
-            case Box_4:
-                _index_4 = (int)position_max;
-                break;
+        for(int i = 0;i<x.size();i++)
+        {
+            x[i] = (center_M - fs_M / 2)+ i*fs_M / sample_cnt;
         }
-        _new_cursor = false;
-    }
+        auto max_value = std::max_element(std::begin(fft_data),std::end(fft_data));
+        auto position_max = std::distance(std::begin(fft_data),max_value);
+        QVector<double>x_plot,y_plot;
+        x_plot << x[(int)position_max];
+        y_plot << fft_data[(int)position_max];
 
-    int range_y = (int)(ui->custom_plot->yAxis->range().upper - ui->custom_plot->yAxis->range().lower) / 2;
-    if(ui->checkBox_1->checkState() == Qt::Checked){
-        QVector<double>x1_plot,y1_plot;
-        x1_plot << x[(int)_index_1];
-        y1_plot << fft_data[(int)_index_1];
+        QVector<double> max_x(sample_cnt,*max_value);
+
+        ui->custom_plot->graph(0)->setData(x,fft_data);
+        ui->custom_plot->graph(1)->setData(x,max_x);
+        ui->custom_plot->graph(2)->setData(x_plot,y_plot);
+        _label->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                    this->ui->custom_plot->yAxis->range().upper - 5);
+        _label->setText(QString("%1MHz , %2dBm").arg(x_plot[0]).arg(y_plot[0]));
+
+        if(_new_cursor){
+            switch(_dial_action){
+                case NO:
+                    break;
+                case Box_1:
+                    _index_1 = (int)position_max;
+                    break;
+                case Box_2:
+                    _index_2 = (int)position_max;
+                    break;
+                case Box_3:
+                    _index_3 = (int)position_max;
+                    break;
+                case Box_4:
+                    _index_4 = (int)position_max;
+                    break;
+            }
+            _new_cursor = false;
+        }
+
+        int range_y = (int)(ui->custom_plot->yAxis->range().upper - ui->custom_plot->yAxis->range().lower) / 2;
+        if(ui->checkBox_1->checkState() == Qt::Checked){
+            QVector<double>x1_plot,y1_plot;
+            x1_plot << x[(int)_index_1];
+            y1_plot << fft_data[(int)_index_1];
 //        _label1->position->setCoords(x1_plot[0],y1_plot[0]+5);
-        ui->custom_plot->graph(3)->setData(x1_plot,y1_plot);
-        _label1->setText(QString("%1MHz , %2dBm").arg(x1_plot[0]).arg(y1_plot[0]));
-        _label1->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
-                                    this->ui->custom_plot->yAxis->range().upper - (range_y / 4));
-    } else{
-        ui->custom_plot->graph(3)->data().data()->clear();
-        _label1->setVisible(false);
-    }
-    if(ui->checkBox_2->checkState() == Qt::Checked){
-        QVector<double>x2_plot,y2_plot;
-        x2_plot << x[(int)_index_2];
-        y2_plot << fft_data[(int)_index_2];
+            ui->custom_plot->graph(3)->setData(x1_plot,y1_plot);
+            _label1->setText(QString("%1MHz , %2dBm").arg(x1_plot[0]).arg(y1_plot[0]));
+            _label1->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                         this->ui->custom_plot->yAxis->range().upper - (range_y / 4));
+        } else{
+            ui->custom_plot->graph(3)->data().data()->clear();
+            _label1->setVisible(false);
+        }
+        if(ui->checkBox_2->checkState() == Qt::Checked){
+            QVector<double>x2_plot,y2_plot;
+            x2_plot << x[(int)_index_2];
+            y2_plot << fft_data[(int)_index_2];
 //        _label2->position->setCoords(x2_plot[0],y2_plot[0]+5);
-        _label2->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
-                                     this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*2);
-        ui->custom_plot->graph(4)->setData(x2_plot,y2_plot);
-        _label2->setText(QString("%1MHz , %2dBm").arg(x2_plot[0]).arg(y2_plot[0]));
-    } else{
-        ui->custom_plot->graph(4)->data().data()->clear();
-        _label2->setVisible(false);
-    }
-    if(ui->checkBox_3->checkState() == Qt::Checked){
-        QVector<double>x3_plot,y3_plot;
-        x3_plot << x[(int)_index_3];
-        y3_plot << fft_data[(int)_index_3];
+            _label2->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                         this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*2);
+            ui->custom_plot->graph(4)->setData(x2_plot,y2_plot);
+            _label2->setText(QString("%1MHz , %2dBm").arg(x2_plot[0]).arg(y2_plot[0]));
+        } else{
+            ui->custom_plot->graph(4)->data().data()->clear();
+            _label2->setVisible(false);
+        }
+        if(ui->checkBox_3->checkState() == Qt::Checked){
+            QVector<double>x3_plot,y3_plot;
+            x3_plot << x[(int)_index_3];
+            y3_plot << fft_data[(int)_index_3];
 //        _label3->position->setCoords(x3_plot[0],y3_plot[0]+5);
-        _label3->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
-                                     this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*3);
-        ui->custom_plot->graph(5)->setData(x3_plot,y3_plot);
-        _label3->setText(QString("%1MHz , %2dBm").arg(x3_plot[0]).arg(y3_plot[0]));
-    } else{
-        ui->custom_plot->graph(5)->data().data()->clear();
-        _label3->setVisible(false);
-    }
-    if(ui->checkBox_4->checkState() == Qt::Checked) {
-        QVector<double>x4_plot,y4_plot;
-        x4_plot << x[(int)_index_4];
-        y4_plot << fft_data[(int)_index_4];
+            _label3->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                         this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*3);
+            ui->custom_plot->graph(5)->setData(x3_plot,y3_plot);
+            _label3->setText(QString("%1MHz , %2dBm").arg(x3_plot[0]).arg(y3_plot[0]));
+        } else{
+            ui->custom_plot->graph(5)->data().data()->clear();
+            _label3->setVisible(false);
+        }
+        if(ui->checkBox_4->checkState() == Qt::Checked) {
+            QVector<double>x4_plot,y4_plot;
+            x4_plot << x[(int)_index_4];
+            y4_plot << fft_data[(int)_index_4];
 //        _label4->position->setCoords(x4_plot[0],y4_plot[0]+5);
-        _label4->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
-                                     this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*4);
-        ui->custom_plot->graph(6)->setData(x4_plot,y4_plot);
-        _label4->setText(QString("%1MHz , %2dBm").arg(x4_plot[0]).arg(y4_plot[0]));
-    } else{
-        ui->custom_plot->graph(6)->data().data()->clear();
-        _label4->setVisible(false);
+            _label4->position->setCoords(this->ui->custom_plot->xAxis->range().upper - this->ui->custom_plot->xAxis->range().size() / 2,
+                                         this->ui->custom_plot->yAxis->range().upper - (range_y / 4)*4);
+            ui->custom_plot->graph(6)->setData(x4_plot,y4_plot);
+            _label4->setText(QString("%1MHz , %2dBm").arg(x4_plot[0]).arg(y4_plot[0]));
+        } else{
+            ui->custom_plot->graph(6)->data().data()->clear();
+            _label4->setVisible(false);
+        }
+
+        if(_is_reset_config){
+            ui->custom_plot->xAxis->rescale();
+            _is_reset_config = false;
+        }
+        ui->custom_plot->xAxis->rescale();
+        emit(send_draw_fft());
+//    ui->custom_plot->replot(QCustomPlot::rpQueuedReplot);
+        ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
     }
 
-    if(_is_reset_config){
-        ui->custom_plot->xAxis->rescale();
-        _is_reset_config = false;
-    }
-    ui->custom_plot->xAxis->rescale();
-    emit(send_draw_fft());
-//    ui->custom_plot->replot(QCustomPlot::rpQueuedReplot);
-    ui->custom_plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 }
 
 void device_config::recv_seletnumber_change(void) {

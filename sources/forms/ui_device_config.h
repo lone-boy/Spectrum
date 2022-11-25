@@ -472,7 +472,7 @@ public:
         ip_edit->setStatusTip(QString());
 #endif // QT_NO_STATUSTIP
         ip_edit->setText(QString());
-        ip_edit->setPlaceholderText(QApplication::translate("device_config", "ip:192.168.2.1", nullptr));
+        ip_edit->setPlaceholderText(QApplication::translate("device_config", "ip:192.168.1.10", nullptr));
         status->setText(QString());
         status->setPlaceholderText(QApplication::translate("device_config", "OFF", nullptr));
         button_screen_shot->setText(QApplication::translate("device_config", "Screenshot", nullptr));
