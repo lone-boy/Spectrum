@@ -402,20 +402,20 @@ public:
             UHD_ASSERT_THROW(ref_locked.to_bool());
         }
         _uhd_device->set_rx_agc(false,0);
+        _uhd_device->set_rx_gain(70,channel);
         return true;
     }
     void sdr_set_rx_samplecnt(uint32_t sample_cnt) override{
         _sample_size = sample_cnt;
-        if(not _is_rx_running)
-            _buff.resize(_sample_size*2);
-        else
-            _is_rx_buff_resize = true;
+//        if(not _is_rx_running)
+////            _buff.resize(_sample_size*2);
+//        else
+        _is_rx_buff_resize = true;
     }
     void sdr_start_rx(RX_data_callback handler) override{
         _rx_handle = handler;
 
-        _rx_stream = _uhd_device->get_rx_stream(_stream_args);
-        _rx_stream->issue_stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
+
         if(!_is_rx_running && ! _rx_thread){
             _is_rx_running = true;
             _rx_thread = new std::thread([this] { RXSync_thread(); });
@@ -455,14 +455,38 @@ private:
 void uhdDevice::RXSync_thread() {
     _is_rx_buff_resize = false;
     sdr_transfer trans;
+    std::vector<size_t> channel_nums;
+    channel_nums.push_back(0);
+    _stream_args.channels = channel_nums;
+    _rx_stream = _uhd_device->get_rx_stream(_stream_args);
+
+    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
+    stream_cmd.num_samps = size_t (0);
+    stream_cmd.stream_now = true;
+    stream_cmd.time_spec = uhd::time_spec_t();
+    _rx_stream->issue_stream_cmd(stream_cmd);
+    _buff.resize(128*1024*2);
     uhd::rx_metadata_t md;
     trans.data = &_buff.front();
     try {
         while(_is_rx_running){
             if(_is_rx_buff_resize){
-                _buff.resize(_sample_size * 2);
+                _is_rx_buff_resize = false;
+                string size("change rx buff size ");
+                size += to_string(_sample_size);
+                this->_log.DEBUG(size);
             }
-            int num_rx_samps = _rx_stream->recv(&_buff.front(),_sample_size,md,0.0, false);
+            int num_rx_samps = _rx_stream->recv(&_buff.front(),_sample_size,md,3.0, false);
+            if(md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT){
+                this->_log.ERROR("Time out while streaming\n");
+                continue;
+            }
+            if(md.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW){
+                continue;
+            }
+            if(md.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE){
+                continue;
+            }
             if(num_rx_samps == _sample_size){
                 trans.length = num_rx_samps;
             }

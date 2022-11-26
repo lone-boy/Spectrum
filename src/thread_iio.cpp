@@ -39,6 +39,38 @@ iqProcess::~iqProcess(){
         fftw_free(_out_iq);
 }
 
+/* important */
+void iqProcess::get_rx_data(mp::sdr_transfer *transfer) {
+    /* iq data get */
+    pThis->sync.lock();
+
+    if(transfer->length == pThis->_sample_cnt and not checkout && frame){
+        pThis->_scan_cnt++;
+        pThis->one_sample_fft(transfer->data);
+        pThis->pow2db();
+
+        if(pThis->_scan_cnt_need == pThis->_scan_cnt){
+            pThis->emit send_fft_data(pThis->_send_data,pThis->_send_data.size(),
+                                      pThis->_frequency,static_cast<double>(pThis->_span)*1e6);
+            pThis->_scan_cnt = 0;
+            if(pThis->_scan_cnt_need > 1){
+                pThis->_device->sdr_set_lo_frequency(pThis->_frequency_scan[pThis->_scan_cnt]);
+            }
+            pThis->_send_data.clear();
+            frame = false;
+        }
+        else if(pThis->_scan_cnt_need != 1){
+            /* set frequency */
+            pThis->_device->sdr_set_lo_frequency(pThis->_frequency_scan[pThis->_scan_cnt]);
+            checkout = true;
+        }
+    }
+    else{
+        checkout = false;
+    }
+    pThis->sync.unlock();
+}
+
 void iqProcess::recv_info_ip(QString info) {
     /* click power */
     if(not _isrun && not _device){
@@ -106,6 +138,7 @@ void iqProcess::recv_frequency(QString frequency_s) {
                 _frequency_scan.push_back(frequency_lo_start + (span_M / pow(2,_div_cnt)) * i);
             }
             if(_isrun){
+                qDebug() <<"lo start" << frequency_lo_start;
                 this->_device->sdr_set_lo_frequency(frequency_lo_start);
                 checkout = true;
                 _send_data.clear();
@@ -134,6 +167,7 @@ void iqProcess::recv_config_span(QString bd_width) {
     }
     else{
         if(_span <= 5){
+            qDebug() << _span;
             _fs = static_cast<double>(this->_span) * 1e6;
             _rbw = _fs / static_cast<double>(this->_sample_cnt);
             _frequency_scan.resize(1);
@@ -187,36 +221,7 @@ void iqProcess::recv_config_span(QString bd_width) {
     sync.unlock();
 }
 
-/* important */
-void iqProcess::get_rx_data(mp::sdr_transfer *transfer) {
-    /* iq data get */
-    pThis->sync.lock();
-    if(transfer->length == pThis->_sample_cnt and not checkout && frame){
-        pThis->_scan_cnt++;
-        pThis->one_sample_fft(transfer->data);
-        pThis->pow2db();
-        if(pThis->_scan_cnt_need == pThis->_scan_cnt){
-            pThis->emit send_fft_data(pThis->_send_data,pThis->_send_data.size(),pThis->_frequency,static_cast<double>(pThis->_span)*1e6);
-            pThis->_scan_cnt = 0;
-            if(pThis->_scan_cnt_need > 1){
-                pThis->_device->sdr_set_lo_frequency(pThis->_frequency_scan[pThis->_scan_cnt]);
-            }
-            pThis->_send_data.clear();
-            frame = false;
-        }
-        else if(pThis->_scan_cnt_need != 1){
-            /* set frequency */
-            pThis->_device->sdr_set_lo_frequency(pThis->_frequency_scan[pThis->_scan_cnt]);
-            checkout = true;
-        }
-    }
-    else{
-        checkout = false;
-    }
-    pThis->sync.unlock();
 
-
-}
 
 void iqProcess::recv_RWB(bool is_add) {
     /*  */
